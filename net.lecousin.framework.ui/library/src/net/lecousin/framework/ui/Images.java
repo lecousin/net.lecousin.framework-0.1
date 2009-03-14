@@ -92,6 +92,7 @@ public interface Images {
 				public static final String CLOSE = CANCEL;
 				
 				public static final String INTERNET = _path+"internet.gif";
+				public static final String MAIL = _path+"mail.gif";
 
 				public static final String PROCESSING = _path+"processing.gif";
 				public static final String WAIT_CLOCK = _path+"wait_clock.gif";
@@ -144,6 +145,12 @@ public interface Images {
 				
 				public static final String MOVIE = _path+"movie.gif";
 				public static final String AUDIO = _path+"audio.gif";
+			}
+			
+			public interface misc {
+				static final String _path = x16._path+"misc/";
+				
+				public static final String HEART = _path+"heart.gif";
 			}
 		}
 

@@ -17,6 +17,7 @@ import net.lecousin.framework.ui.eclipse.graphics.ColorUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -27,11 +28,17 @@ import org.eclipse.swt.widgets.Label;
 public class EmbeddedWorkProgressControl implements Listener<WorkProgress> {
 
 	public EmbeddedWorkProgressControl(WorkProgress progress) {
+		this(progress, ColorUtil.get(60, 60, 240), ColorUtil.get(60, 60, 240));
+	}
+	public EmbeddedWorkProgressControl(WorkProgress progress, Color mainProgressBarColor, Color subProgressBarsColor) {
 		this.progress = progress;
+		this.mainBarColor = mainProgressBarColor;
+		this.subBarsColor = subProgressBarsColor;
 		progress.addProgressListener(this);
 	}
 	
 	private WorkProgress progress;
+	private Color mainBarColor, subBarsColor;
 	private Composite container;
 	private Composite panel;
 	private Resizer resizer;
@@ -59,7 +66,7 @@ public class EmbeddedWorkProgressControl implements Listener<WorkProgress> {
 		
 		mainLabel = UIUtil.newLabel(panel, progress.getDescription() + "...");
 		UIUtil.gridDataHorizFill(mainLabel);
-		mainBar = new LCProgressBar(panel, LCProgressBar.Style.ROUND, ColorUtil.getBlue());
+		mainBar = new LCProgressBar(panel, LCProgressBar.Style.ROUND, mainBarColor);
 		UIUtil.gridDataHorizFill(mainBar);
 		mainBar.setMinimum(0);
 		mainBar.setMaximum(progress.getAmount());
@@ -80,7 +87,7 @@ public class EmbeddedWorkProgressControl implements Listener<WorkProgress> {
 		sep.setLayoutData(gd);
 		
 		scroll = new ScrolledComposite(panel, SWT.V_SCROLL);
-		subWorksPanel = new SubWorkPanel(scroll, progress);
+		subWorksPanel = new SubWorkPanel(scroll, progress, subBarsColor);
 		scroll.setContent(subWorksPanel);
 		gd = UIUtil.gridData(1, true, 1, true);
 		gd.verticalIndent = 10;
@@ -276,9 +283,10 @@ public class EmbeddedWorkProgressControl implements Listener<WorkProgress> {
 	}
 	
 	private static class SubWorkPanel extends Composite {
-		SubWorkPanel(Composite parent, WorkProgress progress) {
+		SubWorkPanel(Composite parent, WorkProgress progress, Color progressBarColor) {
 			super(parent, SWT.NONE);
 			this.progress = progress;
+			this.progressBarColor = progressBarColor;
 			GridLayout layout = UIUtil.gridLayout(this, 2);
 			layout.marginHeight = 0;
 			layout.marginWidth = 0;
@@ -317,7 +325,7 @@ public class EmbeddedWorkProgressControl implements Listener<WorkProgress> {
 			header_text.setText(progress.getDescription());
 			header_text.setLayoutData(UIUtil.gridDataHoriz(1, true));
 			UIControlUtil.increaseFontSize(header_text, -1);
-			header_bar = new LCProgressBar(header, LCProgressBar.Style.ROUND, ColorUtil.getBlue());
+			header_bar = new LCProgressBar(header, LCProgressBar.Style.ROUND, progressBarColor);
 			header_bar.setMinimum(0);
 			header_bar.setMaximum(progress.getAmount());
 			gd = new GridData();
@@ -335,6 +343,7 @@ public class EmbeddedWorkProgressControl implements Listener<WorkProgress> {
 			UIControlUtil.increaseFontSize(header_subtext, -1);
 		}
 		private WorkProgress progress;
+		private Color progressBarColor;
 		private Composite header;
 		private Composite body;
 		private Label header_icon;
@@ -360,7 +369,7 @@ public class EmbeddedWorkProgressControl implements Listener<WorkProgress> {
 						break;
 					}
 				if (panel == null) {
-					panel = new SubWorkPanel(body, subWork);
+					panel = new SubWorkPanel(body, subWork, progressBarColor);
 					GridData gd = (GridData)body.getLayoutData();
 					gd.heightHint = SWT.DEFAULT;
 					UIUtil.gridDataHorizFill(panel);

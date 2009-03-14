@@ -241,8 +241,4 @@ public class FlatPagedListDialog<T> extends FlatDialog {
 			page = nbPages;
 		refreshPage();
 	}
-	
-	public void open() {
-		super.openFlatDialog(true, true);
-	}
 }

@@ -356,6 +356,36 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 					selectAll();
 					e.doit = false;
 				}
+			} else if (e.keyCode == SWT.ARROW_DOWN && rows.size() > 0) {
+				List<Row> sel = getSelectedRows();
+				if (sel == null || sel.size() == 0) {
+					setSelection(rows.get(0).element);
+					makeVisible(0);
+					e.doit = false;
+				} else {
+					Row r = sel.get(0);
+					int i = rows.indexOf(r);
+					if (i < rows.size() - 1) {
+						setSelection(rows.get(i+1).element);
+						makeVisible(i+1);
+						e.doit = false;
+					}
+				}
+			} else if (e.keyCode == SWT.ARROW_UP && rows.size() > 0) {
+				List<Row> sel = getSelectedRows();
+				if (sel == null || sel.size() == 0) {
+					setSelection(rows.get(0).element);
+					makeVisible(0);
+					e.doit = false;
+				} else {
+					Row r = sel.get(0);
+					int i = rows.indexOf(r);
+					if (i > 0) {
+						setSelection(rows.get(i-1).element);
+						makeVisible(i-1);
+						e.doit = false;
+					}
+				}
 			}
 			if (e.doit)
 				for (KeyListener listener : keyListeners)
@@ -685,6 +715,29 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 		if (i == index) return true;
 		moveRow(row, i, index);
 		return true;
+	}
+	
+	public void makeVisible(int rowIndex) {
+		if (rowIndex >= rows.size()) return;
+		int y = VERT_SPACE;
+		int i = 0;
+		int startY = 0, endY = 0;
+		for (Row r : rows) {
+			if (i == rowIndex) {
+				startY = y;
+				endY = y+r.height;
+				break;
+			}
+			y += r.height + VERT_SPACE;
+			i++;
+		}
+		if (startY < panelRowsScrolled) {
+			verticalBar.setSelection(startY);
+			verticalScrollChanged();
+		} else if (endY > panelRowsScrolled + scrollRowsSize.y) {
+			verticalBar.setSelection(endY-scrollRowsSize.y);
+			verticalScrollChanged();
+		}
 	}
 	
 	private Point panelRowsSize = null;

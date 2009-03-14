@@ -1,5 +1,6 @@
 package net.lecousin.framework.ui.eclipse.dialog;
 
+import net.lecousin.framework.Pair;
 import net.lecousin.framework.event.Event.Listener;
 import net.lecousin.framework.ui.eclipse.UIUtil;
 import net.lecousin.framework.ui.eclipse.control.BorderStyle;
@@ -134,12 +135,24 @@ public abstract class FlatDialog extends MyDialog {
 	
 	public Composite getControl() { return contentPanel; }
 	
-	protected void openFlatDialog(boolean progressive, boolean modal) {
+	public void openRelative(Control relative, Orientation o, boolean progressive, boolean modal) {
+		super.create(null, 0);
+		Pair<OrientationX,OrientationY> p = super.setLocationRelative(relative, o);
 		if (progressive) {
-			super.create(null, 0);
-			super.openProgressive(null, OrientationY.BOTTOM);
+			super.openProgressive(p.getValue1(), p.getValue2());
+			if (modal)
+				super.modal();
 		} else
-			super.open(null, 0);
+			super.open(modal);
+	}
+	public void openProgressive(OrientationX ox, OrientationY oy, boolean modal) {
+		super.create(null, 0);
+		super.openProgressive(ox, oy);
+		if (modal)
+			super.modal();
+	}
+	public void open(boolean modal) {
+		super.open(null, 0);
 		if (modal)
 			super.modal();
 	}

@@ -1,5 +1,6 @@
 package net.lecousin.framework.ui.eclipse.dialog;
 
+import net.lecousin.framework.Pair;
 import net.lecousin.framework.thread.RunnableWithData;
 
 import org.eclipse.swt.SWT;
@@ -9,6 +10,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -296,5 +298,96 @@ public abstract class MyDialog extends Dialog {
     }
     
     protected Composite getDialogPanel() { return dialog; }
-	
+
+	public enum Orientation {
+		/** Start from bottom right, and go up-left until there is enough space */
+		BOTTOM_RIGHT,
+		/** Show on above or below according to where there is the most space */
+		TOP_BOTTOM,
+		/** Show below, except if there is not enough space. In this case it will be shown above. */
+		BOTTOM,
+	}
+    
+    public Pair<OrientationX,OrientationY> setLocationRelative(Control relative, Orientation orientation) {
+		resize();
+		Rectangle bounds;
+		if (relative != null)
+			bounds = toDisplay(relative);
+		else {
+			Point pt = Display.getDefault().getCursorLocation();
+			bounds = new Rectangle(pt.x, pt.y, 0, 0);
+		}
+		Point size = getShell().getSize();
+		Rectangle display = getShell().getDisplay().getBounds();
+		int x = 0, y = 0;
+		OrientationX ox = null;
+		OrientationY oy = null;
+		switch (orientation) {
+		case BOTTOM_RIGHT:
+			ox = OrientationX.RIGHT;
+			oy = OrientationY.BOTTOM;
+			if (size.x + bounds.x + bounds.width <= display.x + display.width)
+				// enough place at right
+				x = bounds.x + bounds.width;
+			else
+				x = bounds.x + bounds.width - ((size.x + bounds.x + bounds.width) - (display.x + display.width));
+			if (size.y + bounds.y + bounds.height <= display.y + display.height)
+				// enough place at bottom
+				y = bounds.y + bounds.height;
+			else
+				y = bounds.y + bounds.height - ((size.y + bounds.y + bounds.height) - (display.y + display.height));
+			break;
+		case TOP_BOTTOM:
+			ox = null;
+			if (bounds.y - display.y > (display.y + display.height)-(bounds.y+bounds.height)) {
+				// more space on top
+				y = bounds.y - size.y;
+				if (y < display.y) y = display.y;
+				oy = OrientationY.TOP;
+			} else {
+				// more space on bottom
+				y = bounds.y + bounds.height;
+				if (y + size.y > display.y + display.height)
+					y = (display.y + display.height)-size.y;
+				if (y < display.y) y = display.y;
+				oy = OrientationY.BOTTOM;
+			}
+			x = bounds.x;
+			if (x + size.x > display.x + display.width)
+				x = (display.x + display.width) - size.x;
+			if (x < display.x)
+				x = display.x;
+			break;
+		case BOTTOM:
+			ox = null;
+			if (bounds.y + size.y < display.y + display.height) {
+				// enough space on bottom
+				y = bounds.y + bounds.height;
+				if (y + size.y > display.y + display.height)
+					y = (display.y + display.height)-size.y;
+				if (y < display.y) y = display.y;
+				oy = OrientationY.BOTTOM;
+			} else {
+				y = bounds.y - size.y;
+				if (y < display.y) y = display.y;
+				oy = OrientationY.TOP;
+			}
+			x = bounds.x;
+			if (x + size.x > display.x + display.width)
+				x = (display.x + display.width) - size.x;
+			if (x < display.x)
+				x = display.x;
+			break;
+		}
+		getShell().setLocation(x, y);
+		return new Pair<OrientationX,OrientationY>(ox, oy);
+    }
+	private Rectangle toDisplay(Control c) {
+		Rectangle r = c.getBounds();
+		Point pt = c.getParent().toDisplay(r.x, r.y);
+		r.x = pt.x;
+		r.y = pt.y;
+		return r;
+	}
+    
 }

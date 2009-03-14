@@ -42,7 +42,11 @@ public class ImageAndTextButton extends Composite implements PaintListener {
         gd = new GridData();
         gd.grabExcessHorizontalSpace = true;
         gd.horizontalAlignment = SWT.CENTER;
+        gd.verticalAlignment = SWT.CENTER;
         this.text.setLayoutData(gd);
+        gd = new GridData();
+        gd.verticalAlignment = SWT.CENTER;
+        this.icon.setLayoutData(gd);
         
         pushDownBorderColor = new Color(getDisplay(), 128, 128, 128);
         pushUpBorderColor = new Color(getDisplay(), 240, 240, 240);
