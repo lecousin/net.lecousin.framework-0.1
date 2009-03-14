@@ -1,0 +1,35 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: lecousin framework - UI
+Bundle-SymbolicName: net.lecousin.framework.ui
+Bundle-Version: 0.1.0
+Bundle-Activator: net.lecousin.framework.ui.eclipse.internal.EclipsePlugin
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.core.resources,
+ org.eclipse.core.expressions,
+ org.eclipse.ui.forms,
+ net.lecousin.framework;bundle-version="0.1.0"
+Eclipse-LazyStart: true
+Export-Package: net.lecousin.framework.ui,
+ net.lecousin.framework.ui.eclipse,
+ net.lecousin.framework.ui.eclipse.control,
+ net.lecousin.framework.ui.eclipse.control.button,
+ net.lecousin.framework.ui.eclipse.control.buttonbar,
+ net.lecousin.framework.ui.eclipse.control.chart,
+ net.lecousin.framework.ui.eclipse.control.date,
+ net.lecousin.framework.ui.eclipse.control.error,
+ net.lecousin.framework.ui.eclipse.control.list,
+ net.lecousin.framework.ui.eclipse.control.stats,
+ net.lecousin.framework.ui.eclipse.control.text,
+ net.lecousin.framework.ui.eclipse.control.text.lcml,
+ net.lecousin.framework.ui.eclipse.dialog,
+ net.lecousin.framework.ui.eclipse.event,
+ net.lecousin.framework.ui.eclipse.graphics,
+ net.lecousin.framework.ui.eclipse.helper,
+ net.lecousin.framework.ui.eclipse.menu,
+ net.lecousin.framework.ui.eclipse.progress,
+ net.lecousin.framework.ui.eclipse.resources,
+ net.lecousin.framework.ui.eclipse.views.table,
+ net.lecousin.framework.ui.eclipse.views.tree
+Bundle-Vendor: Guillaume LE COUSIN

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="lib/httpclient-4.0-alpha4.jar"/>
+	<classpathentry kind="lib" path="lib/httpcore-4.0-beta2.jar"/>
+	<classpathentry kind="lib" path="lib/httpmime-4.0-alpha4.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/net.lecousin.framework"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/net.lecousin.framework.net.mime"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

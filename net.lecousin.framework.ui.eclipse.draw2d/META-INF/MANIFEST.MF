@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Draw2d Plug-in
+Bundle-SymbolicName: net.lecousin.framework.ui.eclipse.draw2d
+Bundle-Version: 1.0.0
+Bundle-Activator: net.lecousin.framework.ui.eclipse.draw2d.internal.EclipsePlugin
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.draw2d
+Eclipse-LazyStart: true
+Export-Package: net.lecousin.framework.ui.eclipse.draw2d
