@@ -47,13 +47,15 @@ public class ChunkedTransfer extends Transfer {
 					Log.error(this, "End of stream reached while a chunk size is expected.");
 				return -1;
 			}
-			i = StringUtil.decodeHexa((char)i);
-			if (i == -1) {
+			if (i == ';') break;
+			if ((i&0xFF) == 0x0D) break;
+			int isize = StringUtil.decodeHexa((char)i);
+			if (isize == -1) {
 				if (Log.error(this))
 					Log.error(this, "Invalid chunk size: character '" + (char)i + "' (0x" + StringUtil.toStringHex(i, 2) + ") is not a valid hexadecimal character.");
 				return -1;
 			}
-			size += (long)i << ((7-pos)*4);
+			size += (long)isize << ((7-pos)*4);
 			pos++;
 		} while (pos < 8);
 		int i;

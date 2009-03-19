@@ -254,6 +254,7 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 		}
 		ColumnProvider<T> provider;
 		int width;
+		int sort = 0;
 		ColumnHeader header;
 	}
 	private int lastSelection = -1;
@@ -609,12 +610,17 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 	
 	private void createRow(T element, boolean deferResize) {
 		Row row = new Row(element);
-		rows.add(row);
+		int index = getIndexToInsert(element);
+		rows.add(index, row);
 		layout.rowAdded(row, deferResize);
 	}
 	private void updateRow(Row row, boolean deferResize) {
 		row.update();
 		layout.rowUpdated(row, deferResize);
+		int current = rows.indexOf(row);
+		int index = getSortIndex(row, current);
+		if (current != index)
+			moveRow(row, current, index);
 	}
 	private void removeRow(Row r, boolean deferResize) {
 		layout.rowRemoved(r, deferResize);
@@ -637,6 +643,74 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 			if (r.element == element)
 				return r;
 		return null;
+	}
+	
+	private int getIndexToInsert(T element) {
+		Column sortCol = null;
+		for (Column col : columns)
+			if (col.sort != 0) {
+				sortCol = col;
+				break;
+			}
+		if (sortCol == null) return rows.size();
+		int i = 0;
+		for (Row r : rows) {
+			int cmp = compare(sortCol.provider, element, r.element);
+			if (cmp <= 0 && sortCol.sort < 0)
+				return i;
+			if (cmp >= 0 && sortCol.sort > 0)
+				return i;
+			i++;
+		}
+		return i;
+	}
+	private int getSortIndex(Row row, int current) {
+		Column sortCol = null;
+		for (Column col : columns)
+			if (col.sort != 0) {
+				sortCol = col;
+				break;
+			}
+		if (sortCol == null) return current;
+		int i = 0;
+		for (Row r : rows) {
+			if (r == row) continue;
+			int cmp = compare(sortCol.provider, row.element, r.element);
+			if (cmp <= 0 && sortCol.sort < 0)
+				return i;
+			if (cmp >= 0 && sortCol.sort > 0)
+				return i;
+			i++;
+		}
+		return i;
+	}
+	private int compare(ColumnProvider<T> provider, T e1, T e2) {
+		if (provider instanceof ColumnProviderText) {
+			ColumnProviderText<T> p = (ColumnProviderText<T>)provider;
+			return p.compare(e1, p.getText(e1), e2, p.getText(e2));
+		} else if (provider instanceof ColumnProviderControl) {
+			ColumnProviderControl<T> p = (ColumnProviderControl<T>)provider;
+			return p.compare(e1, e2);
+		}
+		return 0;
+	}
+	private void sort(Column col) {
+		LinkedList<Row> sorted = new LinkedList<Row>();
+		for (Row r : rows)
+			sort(col, r, sorted, 0, sorted.size()-1);
+		rows = sorted;
+	}
+	private void sort(Column col, Row r, List<Row> list, int min, int max) {
+		if (max < min) { list.add(min, r); return; }
+		if (min > max) { list.add(max+1, r); return; }
+		int pivot = (max-min)/2 + min;
+		int cmp = compare(col.provider, r.element, list.get(pivot).element);
+		if (col.sort > 0) cmp = -cmp;
+		if (cmp == 0) { list.add(pivot, r); return; }
+		if (cmp < 0) 
+			sort(col, r, list, min, pivot-1);
+		else
+			sort(col, r, list, pivot+1, max);
 	}
 	
 	
@@ -767,12 +841,13 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 	}
 	
 	private static int COLUMN_HEADER_HEIGHT = 25;
-	private class ColumnHeader extends Canvas implements PaintListener {
+	private class ColumnHeader extends Canvas implements PaintListener, MouseListener {
 		public ColumnHeader(Composite parent, Column col) {
 			super(parent, SWT.NO_BACKGROUND);
 			this.col = col;
 			addPaintListener(this);
 			resizer.register(this);
+			addMouseListener(this);
 		}
 		Column col;
 		public void paintControl(PaintEvent e) {
@@ -804,6 +879,42 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 			e.gc.drawText(title, x, y, true);
 			e.gc.setForeground(ColorUtil.get(150, 150, 150));
 			e.gc.drawLine(0, size.y-1, size.x-1, size.y-1);
+			
+			if (col.sort < 0) {
+				e.gc.setForeground(ColorUtil.get(100, 100, 200));
+				e.gc.drawPoint(size.x/2, 2);
+				e.gc.drawLine(size.x/2-1, 3, size.x/2+1, 3);
+				e.gc.drawLine(size.x/2-2, 4, size.x/2+2, 4);
+			} else if (col.sort > 0) {
+				e.gc.setForeground(ColorUtil.get(100, 100, 200));
+				e.gc.drawLine(size.x/2-2, 2, size.x/2+2, 2);
+				e.gc.drawLine(size.x/2-1, 3, size.x/2+1, 3);
+				e.gc.drawPoint(size.x/2, 4);
+			}
+		}
+		public void mouseDoubleClick(MouseEvent e) {
+		}
+		public void mouseDown(MouseEvent e) {
+		}
+		public void mouseUp(MouseEvent e) {
+			if (resizer.isResizing) return;
+			if (col.sort < 0)
+				col.sort = 1;
+			else if (col.sort > 0)
+				col.sort = -1;
+			else {
+				for (Column c : columns) {
+					if (c.sort != 0) {
+						c.sort = 0;
+						c.header.redraw();
+						break;
+					}
+				}
+				col.sort = -1;
+			}
+			redraw();
+			sort(col);
+			layout.refreshAll();
 		}
 		@Override
 		public Point computeSize(int hint, int hint2, boolean changed) {

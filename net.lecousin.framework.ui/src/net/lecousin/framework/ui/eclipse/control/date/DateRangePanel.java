@@ -6,6 +6,7 @@ import net.lecousin.framework.event.Event;
 import net.lecousin.framework.event.Event.Listener;
 import net.lecousin.framework.math.RangeLong;
 import net.lecousin.framework.time.DateTimeUtil;
+import net.lecousin.framework.ui.eclipse.Local;
 import net.lecousin.framework.ui.eclipse.UIUtil;
 
 import org.eclipse.swt.SWT;
@@ -28,7 +29,7 @@ public class DateRangePanel extends Composite {
 		setLayout(layout);
 		
 		from = new DateControl(this);
-		Label label = UIUtil.newLabel(this, "to");
+		Label label = UIUtil.newLabel(this, Local.to_date.toString());
 		label.setAlignment(SWT.CENTER);
 		to = new DateControl(this);
 		

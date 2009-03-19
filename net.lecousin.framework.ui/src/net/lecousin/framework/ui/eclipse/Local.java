@@ -11,6 +11,7 @@ public enum Local {
 	Ok("Ok", "Ok"),
 	on("on", "sur"),
 	Page("Page", "page"),
+	to_date("to", "au"),
 	
 	Elapsed_time("Elapsed time", "Temps écoulé"),
 	Estimated_remaining_time("Estimated time left", "Temps restant éstimé"),

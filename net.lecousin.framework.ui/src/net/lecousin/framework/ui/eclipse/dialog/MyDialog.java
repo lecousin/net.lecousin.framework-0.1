@@ -39,7 +39,14 @@ public abstract class MyDialog extends Dialog {
             if (result != null)
             	return result;
 		}
-		return new Shell(PlatformUI.getWorkbench().getDisplay(), SWT.PRIMARY_MODAL/*SWT.APPLICATION_MODAL*/);
+		Display display;
+		if (PlatformUI.isWorkbenchRunning())
+			display = PlatformUI.getWorkbench().getDisplay();
+		else
+			display = Display.getCurrent();
+		if (display == null)
+			display = Display.getDefault();
+		return new Shell(display, SWT.PRIMARY_MODAL/*SWT.APPLICATION_MODAL*/);
 	}
 	
 	private Shell shell;
