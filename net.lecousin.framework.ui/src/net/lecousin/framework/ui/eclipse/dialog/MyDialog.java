@@ -14,6 +14,8 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
 public abstract class MyDialog extends Dialog {
@@ -39,6 +41,21 @@ public abstract class MyDialog extends Dialog {
             if (result != null)
             	return result;
 		}
+		Display display;
+		if (PlatformUI.isWorkbenchRunning())
+			display = PlatformUI.getWorkbench().getDisplay();
+		else
+			display = Display.getCurrent();
+		if (display == null)
+			display = Display.getDefault();
+		return new Shell(display, SWT.PRIMARY_MODAL/*SWT.APPLICATION_MODAL*/);
+	}
+	
+	public static Shell getPlatformShell() {
+		IWorkbench workbench = PlatformUI.isWorkbenchRunning() ? PlatformUI.getWorkbench() : null;
+		IWorkbenchWindow window = workbench != null ? workbench.getActiveWorkbenchWindow() : null;
+		Shell shell = window.getShell();
+		if (shell != null) return shell;
 		Display display;
 		if (PlatformUI.isWorkbenchRunning())
 			display = PlatformUI.getWorkbench().getDisplay();

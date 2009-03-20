@@ -180,4 +180,11 @@ public static <T, U extends T> List<Class<? extends T>> get_class_list(Class<U> 
 		  list.add(array[i]);
 	  return list;
   }
+  
+  public static <T> boolean containsIdentity(Iterable<? extends T> col, T element) {
+	  for (T e : col)
+		  if (e == element)
+			  return true;
+	  return false;
+  }
 }

@@ -29,7 +29,7 @@ public class DateRangePanel extends Composite {
 		setLayout(layout);
 		
 		from = new DateControl(this);
-		Label label = UIUtil.newLabel(this, Local.to_date.toString());
+		Label label = UIUtil.newLabel(this, Local.to__date.toString());
 		label.setAlignment(SWT.CENTER);
 		to = new DateControl(this);
 		

@@ -3,6 +3,7 @@ package net.lecousin.framework.ui.eclipse.dialog;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.lecousin.framework.Pair;
 import net.lecousin.framework.event.Event.Listener;
 import net.lecousin.framework.ui.eclipse.Local;
 import net.lecousin.framework.ui.eclipse.SharedImages;
@@ -109,8 +110,8 @@ public class FlatPagedListDialog<T> extends FlatDialog {
 			buttons.setLayout(layout);
 			UIUtil.gridDataHorizFill(buttons);
 			for (TPos pos : possibilities) {
-				Button b = UIUtil.newCheck(buttons, getName(pos), new Listener<Object>() {
-					public void fire(Object event) {
+				Button b = UIUtil.newCheck(buttons, getName(pos), new Listener<Pair<Boolean,Object>>() {
+					public void fire(Pair<Boolean,Object> event) {
 						dialog.refreshFilter();
 					}
 				}, null);

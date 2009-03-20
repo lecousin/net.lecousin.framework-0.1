@@ -3,6 +3,7 @@ package net.lecousin.framework.ui.eclipse.control.date;
 import net.lecousin.framework.event.Event;
 import net.lecousin.framework.event.Event.Listener;
 import net.lecousin.framework.math.RangeLong;
+import net.lecousin.framework.ui.eclipse.Local;
 import net.lecousin.framework.ui.eclipse.UIUtil;
 
 import org.eclipse.swt.SWT;
@@ -29,7 +30,7 @@ public class TimeRangePanel extends Composite {
 		RowData rd = new RowData();
 		rd.width = 45;
 		from.setLayoutData(rd);
-		Label label = UIUtil.newLabel(this, "to");
+		Label label = UIUtil.newLabel(this, Local.to__time.toString());
 		label.setAlignment(SWT.CENTER);
 		to = new TimeControl(this);
 		rd = new RowData();

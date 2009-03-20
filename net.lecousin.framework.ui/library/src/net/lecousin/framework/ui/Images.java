@@ -17,6 +17,16 @@ public interface Images {
 			}
 		}
 		
+		public interface x10 {
+			static final String _path = icons._path+"10x10/";
+			
+			public interface basic {
+				static final String _path = x10._path+"basic/";
+				
+				public static final String REVERSE = _path+"reverse.gif";
+			}
+		}
+		
 		public interface x11 {
 			static final String _path = icons._path+"11x11/";
 			
@@ -29,7 +39,7 @@ public interface Images {
 				public static final String UP = _path+"up.gif";
 			}
 
-			public interface basic {
+			public interface basic extends x10.basic {
 				static final String _path = x11._path+"basic/";
 				
 				public static final String ADD = _path+"add.gif";

@@ -9,7 +9,7 @@ import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
-/** Represents a list of controls in a row, with the particularity that according to the size of this control,
+/** Represents a list of controls in a row, with the specificity that according to the size of this control,
  * some items may be hidden. Only the first controls are displayed (limited by the size of this control itself),
  * and in case there is not enough place, an optional control is display to allow the user to access to the 
  * complete list.
@@ -18,6 +18,7 @@ public class Row_ExpandableList extends Composite {
 
 	public Row_ExpandableList(Composite parent) {
 		super(parent, SWT.NONE);
+		setBackground(parent.getBackground());
 		RowLayout layout = new RowLayout(SWT.HORIZONTAL);
 		layout.marginHeight = layout.marginWidth = 0;
 		layout.wrap = false;
@@ -87,11 +88,13 @@ public class Row_ExpandableList extends Composite {
 				if (hide) {
 					if (!rd.exclude) {
 						rd.exclude = true;
+						c.setVisible(false);
 						changed = true;
 					}
 				} else {
 					if (rd.exclude) {
 						rd.exclude = false;
+						c.setVisible(true);
 						changed = true;
 					}
 				}

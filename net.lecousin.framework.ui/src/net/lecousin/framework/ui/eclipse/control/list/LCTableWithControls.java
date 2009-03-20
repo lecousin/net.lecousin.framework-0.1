@@ -2,6 +2,7 @@ package net.lecousin.framework.ui.eclipse.control.list;
 
 import java.util.List;
 
+import net.lecousin.framework.Pair;
 import net.lecousin.framework.event.Event;
 import net.lecousin.framework.event.Event.Listener;
 import net.lecousin.framework.ui.eclipse.SharedImages;
@@ -14,7 +15,6 @@ import net.lecousin.framework.ui.eclipse.control.list.LCTable.LCTableProvider_Si
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 
 public class LCTableWithControls<T> extends Composite {
 
@@ -43,9 +43,10 @@ public class LCTableWithControls<T> extends Composite {
 	private Provider<T> provider;
 	private Event<LCTableWithControls<T>> removeRequested = new Event<LCTableWithControls<T>>();
 	private Event<LCTableWithControls<T>> addRequested = new Event<LCTableWithControls<T>>();
+	private Event<Pair<T,Integer>> moved = new Event<Pair<T,Integer>>();
 	
 	public interface Provider<T> extends LCTableProvider<T> {
-		public Control createElementDetailsControl(Composite parent, T element);
+		public void createElementDetailsControl(Composite parent, T element);
 	}
 	public static abstract class Provider_SimpleText<T> extends LCTableProvider_SingleColumnText<T> implements Provider<T> {
 		public Provider_SimpleText(List<T> data) { super(data); }
@@ -53,6 +54,7 @@ public class LCTableWithControls<T> extends Composite {
 	
 	public Event<LCTableWithControls<T>> removeRequested() { return removeRequested; }
 	public Event<LCTableWithControls<T>> addRequested() { return addRequested; }
+	public Event<Pair<T,Integer>> moved() { return moved; }
 	
 	private void createControls(boolean orderable, boolean removable, boolean addable) {
 		Composite panel = UIUtil.newGridComposite(this, 0, 0, 1);
@@ -104,24 +106,36 @@ public class LCTableWithControls<T> extends Composite {
 		if (sel == null || sel.isEmpty()) return;
 		int iStart = table.indexOf(sel.get(0));
 		if (iStart == 0) return;
-		for (int pos = iStart-1, i = 0; i < sel.size(); ++i, ++pos)
+		for (int pos = iStart-1, i = 0; i < sel.size(); ++i, ++pos) {
 			table.move(sel.get(i), pos);
+			moved.fire(new Pair<T,Integer>(sel.get(i), pos));
+		}
 	}
 	private void down() {
 		List<T> sel = table.getSelection();
 		if (sel == null || sel.isEmpty()) return;
 		int iStart = table.indexOf(sel.get(sel.size()-1));
 		if (iStart == 0) return;
-		for (int pos = iStart+1, i = 0; i < sel.size(); ++i, ++pos)
+		for (int pos = iStart+1, i = 0; i < sel.size(); ++i, ++pos) {
 			table.move(sel.get(i), pos);
+			moved.fire(new Pair<T,Integer>(sel.get(i), pos));
+		}
 	}
 	
 	private void selChanged() {
 		List<T> sel = table.getSelection();
-		if (sel == null || sel.size() != 1)
+		if (sel == null || sel.size() != 1) {
+			GridData gd = (GridData)detailsPanel.getLayoutData();
+			if (!gd.exclude) {
+				UIControlUtil.clear(detailsPanel);
+				gd.exclude = true;
+			}
+		} else {
 			UIControlUtil.clear(detailsPanel);
-		else
 			provider.createElementDetailsControl(detailsPanel, sel.get(0));
+			GridData gd = (GridData)detailsPanel.getLayoutData();
+			gd.exclude = false;
+		}
 		UIControlUtil.autoresize(detailsPanel);
 	}
 	
@@ -147,6 +161,9 @@ public class LCTableWithControls<T> extends Composite {
 	
 	public List<T> getSelection() { return table.getSelection(); }
 	public List<T> getElements() { return table.getElements(); }
+	public int indexOf(T element) { return table.indexOf(element); }
+	public void refresh(boolean background) { table.refresh(background); }
+	public void refresh(T element) { table.refresh(element); }
 	
 	public void setButtonUpToolTip(String text) {
 		if (buttonUp != null)

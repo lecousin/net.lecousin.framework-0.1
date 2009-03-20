@@ -22,6 +22,7 @@ public class Radio extends Composite {
 
 	public Radio(Composite parent, boolean horiz) {
 		super(parent, SWT.NONE);
+		setBackground(parent.getBackground());
 		horizontal = horiz;
 		UIUtil.gridLayout(this, 1);
 	}
@@ -84,7 +85,7 @@ public class Radio extends Composite {
 	public void setSelection(String id) {
 		for (Iterator<Map.Entry<String,Button>> it = options.entrySet().iterator(); it.hasNext(); ) {
 			Map.Entry<String,Button> e = it.next();
-			boolean selected = id.equals(e.getKey());
+			boolean selected = e.getKey().equals(id);
 			e.getValue().setSelection(selected);
 			LinkedList<Control> list = optionControls.get(e.getKey());
 			if (list != null)

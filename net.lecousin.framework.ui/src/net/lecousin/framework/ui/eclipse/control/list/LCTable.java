@@ -197,6 +197,7 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 	public static class TableConfig {
 		public boolean multiSelection = true;
 		public int fixedRowHeight = 18;
+		public boolean sortable = true;
 	}
 	
 	public static interface LCTableProvider<T> {
@@ -600,6 +601,12 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 			refresh(newRefreshBackground);
 		}
 	}
+
+	public void refresh(T element) {
+		Row i = getRow(element); 
+		if (i != null) 
+			updateRow(i, false);
+	}
 	
 	public void resizeColumn(int colIndex, int width) {
 		if (colIndex >= columns.size()) return;
@@ -611,8 +618,10 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 	private void createRow(T element, boolean deferResize) {
 		Row row = new Row(element);
 		int index = getIndexToInsert(element);
-		rows.add(index, row);
 		layout.rowAdded(row, deferResize);
+		if (index != rows.size())
+			layout.rowMoved(row, rows.size(), index);
+		rows.add(index, row);
 	}
 	private void updateRow(Row row, boolean deferResize) {
 		row.update();
@@ -637,6 +646,7 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 		layout.rowMoved(r, srcIndex, dstIndex);
 		rows.remove(srcIndex);
 		rows.add(dstIndex, r);
+		panelRows.redraw();
 	}
 	private Row getRow(T element) {
 		for (Row r : rows)
@@ -646,6 +656,7 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 	}
 	
 	private int getIndexToInsert(T element) {
+		if (!config.sortable) return rows.size();
 		Column sortCol = null;
 		for (Column col : columns)
 			if (col.sort != 0) {
@@ -665,6 +676,7 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 		return i;
 	}
 	private int getSortIndex(Row row, int current) {
+		if (!config.sortable) return rows.indexOf(row);
 		Column sortCol = null;
 		for (Column col : columns)
 			if (col.sort != 0) {
@@ -897,6 +909,7 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 		public void mouseDown(MouseEvent e) {
 		}
 		public void mouseUp(MouseEvent e) {
+			if (!config.sortable) return;
 			if (resizer.isResizing) return;
 			if (col.sort < 0)
 				col.sort = 1;
@@ -1379,7 +1392,7 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 							colToResize = columns.get(columns.indexOf(header.col)-1);
 						}
 						ok = true;
-					} else if (e.x > header.col.width-SIZE && header.col != columns.get(columns.size()-1)) {
+					} else if (e.x > header.col.width-SIZE) {
 						if (current != cursor) {
 							c.setCursor(cursor);
 							colToResize = header.col;

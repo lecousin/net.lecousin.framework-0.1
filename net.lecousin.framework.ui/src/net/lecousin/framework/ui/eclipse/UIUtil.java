@@ -11,6 +11,7 @@ import net.lecousin.framework.event.Event.ListenerData;
 import net.lecousin.framework.thread.RunnableWithData;
 import net.lecousin.framework.ui.eclipse.control.ImageAndTextButton;
 import net.lecousin.framework.ui.eclipse.control.LabelButton;
+import net.lecousin.framework.ui.eclipse.control.Radio;
 import net.lecousin.framework.ui.eclipse.control.UIControlUtil;
 import net.lecousin.framework.ui.eclipse.event.DisposeListenerWithData;
 import net.lecousin.framework.ui.eclipse.event.HyperlinkListenerWithData;
@@ -35,6 +36,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -153,6 +155,18 @@ public abstract class UIUtil {
     	layout.marginWidth = marginWidth;
     	layout.horizontalSpacing = horizSpace;
     	layout.verticalSpacing = vertSpace;
+    	return layout;
+    }
+    
+    public static RowLayout rowLayout(Composite panel, int type, int marginWidth, int marginHeight, int spacing, boolean wrap) {
+    	RowLayout layout = new RowLayout(type);
+    	layout.marginBottom = layout.marginTop = 0;
+    	layout.marginHeight = marginHeight;
+    	layout.marginLeft = layout.marginRight = 0;
+    	layout.marginWidth = marginWidth;
+    	layout.spacing = spacing;
+    	layout.wrap = wrap;
+    	panel.setLayout(layout);
     	return layout;
     }
     
@@ -318,23 +332,43 @@ public abstract class UIUtil {
     	return label;
     }
     
-    public static <T> Button newButton(Composite parent, String text, int style, Event.Listener<T> clickListener, T data) {
+    public static <T> Button newButton(Composite parent, String text, int style, Event.Listener<Pair<Button,T>> clickListener, T data) {
 		Button button = new Button(parent, style);
 		button.setBackground(parent.getBackground());
 		button.setText(text);
 		if (clickListener != null)
-			button.addSelectionListener(new SelectionListenerWithData<Pair<Event.Listener<T>,T>>(new Pair<Event.Listener<T>,T>(clickListener, data)) {
+			button.addSelectionListener(new SelectionListenerWithData<Pair<Event.Listener<Pair<Button,T>>,T>>(new Pair<Event.Listener<Pair<Button,T>>,T>(clickListener, data)) {
 				public void widgetSelected(SelectionEvent e) {
-					data().getValue1().fire(data().getValue2());
+					data().getValue1().fire(new Pair<Button,T>((Button)e.widget, data().getValue2()));
 				}
 			});
 		return button;
     }
     public static <T> Button newButton(Composite parent, String text, Event.Listener<T> clickListener, T data) {
-    	return newButton(parent, text, SWT.NONE, clickListener, data);
+    	return newButton(parent, text, SWT.NONE, new Event.Listener<Pair<Button,Pair<T,Event.Listener<T>>>>() {
+    		public void fire(Pair<Button, Pair<T,Event.Listener<T>>> event) {
+    			event.getValue2().getValue2().fire(event.getValue2().getValue1());
+    		}
+    	}, new Pair<T,Event.Listener<T>>(data, clickListener));
     }
-    public static <T> Button newCheck(Composite parent, String text, Event.Listener<T> clickListener, T data) {
-    	return newButton(parent, text, SWT.CHECK, clickListener, data);
+    public static <T> Button newCheck(Composite parent, String text, Event.Listener<Pair<Boolean,T>> clickListener, T data) {
+    	return newButton(parent, text, SWT.CHECK, new Event.Listener<Pair<Button,Pair<T,Event.Listener<Pair<Boolean,T>>>>>() {
+    		public void fire(Pair<Button, Pair<T,Event.Listener<Pair<Boolean,T>>>> event) {
+    			event.getValue2().getValue2().fire(new Pair<Boolean,T>(event.getValue1().getSelection(), event.getValue2().getValue1()));
+    		}
+    	}, new Pair<T,Event.Listener<Pair<Boolean,T>>>(data, clickListener));
+    }
+    
+    public static <T> Radio newRadio(Composite parent, String[] options, Event.Listener<Pair<String,T>> listener, T data) {
+    	Radio radio = new Radio(parent, false);
+    	for (String s : options)
+    		radio.addOption(s, s);
+    	radio.addSelectionChangedListener(new ListenerData<String, Pair<Event.Listener<Pair<String,T>>,T>>(new Pair<Event.Listener<Pair<String,T>>,T>(listener, data)) {
+    		public void fire(String event) {
+    			data().getValue1().fire(new Pair<String,T>(event, data().getValue2()));
+    		}
+    	});
+    	return radio;
     }
     
     public static Spinner newSpinner(Composite parent, int min, int max, int increment, int currentValue, Event.Listener<Integer> changeListener) {
@@ -448,6 +482,11 @@ public abstract class UIUtil {
 		layout.verticalSpacing = vertSpacing;
 		return panel;
 	}
+	public static Composite newRowComposite(Composite parent, int type, int marginHeight, int marginWidth, int spacing, boolean wrap) {
+		Composite panel = newComposite(parent);
+		rowLayout(panel, type, marginHeight, marginWidth, spacing, wrap);
+		return panel;
+	}
 	
 	public static <T> LabelButton newImageButton(Composite parent, Image image, Listener<T> listener, T data) {
 		LabelButton button = new LabelButton(parent);
@@ -456,6 +495,18 @@ public abstract class UIUtil {
 		button.addClickListener(new ListenerData<MouseEvent,Pair<Listener<T>, T>>(new Pair<Listener<T>, T>(listener, data)) {
 			public void fire(MouseEvent event) {
 				data().getValue1().fire(data().getValue2());
+			}
+		});
+		return button;
+	}
+	
+	public static <T> Button newImageToggleButton(Composite parent, Image image, Listener<Pair<T,Boolean>> listener, T data) {
+		Button button = new Button(parent, SWT.TOGGLE);
+		button.setBackground(parent.getBackground());
+		button.setImage(image);
+		button.addSelectionListener(new SelectionListenerWithData<Pair<Listener<Pair<T,Boolean>>,T>>(new Pair<Listener<Pair<T,Boolean>>,T>(listener, data)) {
+			public void widgetSelected(SelectionEvent e) {
+				data().getValue1().fire(new Pair<T,Boolean>(data().getValue2(), ((Button)e.widget).getSelection()));
 			}
 		});
 		return button;
@@ -480,5 +531,15 @@ public abstract class UIUtil {
     public static Font setFontStyle(Font font, int style) {
     	FontData data = font.getFontData()[0];
     	return new Font(font.getDevice(), data.getName(), data.getHeight(), style);
+    }
+    
+    public static GridData indentOnGrid(Control c, int indent) {
+    	GridData gd = (GridData)c.getLayoutData();
+    	if (gd == null) {
+    		gd = new GridData();
+    		c.setLayoutData(gd);
+    	}
+    	gd.horizontalIndent = indent;
+    	return gd;
     }
 }
