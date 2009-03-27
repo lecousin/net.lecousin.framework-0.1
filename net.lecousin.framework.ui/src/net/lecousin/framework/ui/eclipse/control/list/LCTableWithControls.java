@@ -50,6 +50,7 @@ public class LCTableWithControls<T> extends Composite {
 	}
 	public static abstract class Provider_SimpleText<T> extends LCTableProvider_SingleColumnText<T> implements Provider<T> {
 		public Provider_SimpleText(List<T> data) { super(data); }
+		public Provider_SimpleText(List<T> data, String columnTitle, int alignment, boolean multiSelection) { super(data, columnTitle, alignment, multiSelection); }
 	}
 	
 	public Event<LCTableWithControls<T>> removeRequested() { return removeRequested; }

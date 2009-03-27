@@ -137,6 +137,7 @@ public abstract class FlatDialog extends MyDialog {
 	
 	public void openRelative(Control relative, Orientation o, boolean progressive, boolean modal) {
 		super.create(null, 0);
+		makeSubShell();
 		Pair<OrientationX,OrientationY> p = super.setLocationRelative(relative, o);
 		if (progressive) {
 			super.openProgressive(p.getValue1(), p.getValue2());
@@ -147,12 +148,14 @@ public abstract class FlatDialog extends MyDialog {
 	}
 	public void openProgressive(OrientationX ox, OrientationY oy, boolean modal) {
 		super.create(null, 0);
+		makeSubShell();
 		super.openProgressive(ox, oy);
 		if (modal)
 			super.modal();
 	}
 	public void open(boolean modal) {
 		super.open(null, 0);
+		makeSubShell();
 		if (modal)
 			super.modal();
 	}

@@ -1,5 +1,8 @@
 package net.lecousin.framework.collections;
 
+import java.util.LinkedList;
+import java.util.List;
+
 public class ArrayUtil {
 
 	public static <T> boolean contains(T[] array, T value) {
@@ -37,5 +40,16 @@ public class ArrayUtil {
 		for (int i = 0; i < content.length; ++i)
 			array[i] = (T)content[i];
 		return array;
+	}
+	
+	public static <T> List<T> unionIdentity(T[] a1, T[] a2) {
+		List<T> result = new LinkedList<T>();
+		for (T e1 : a1)
+			for (T e2 : a2)
+				if (e1 == e2) {
+					result.add(e1);
+					break;
+				}
+		return result;
 	}
 }

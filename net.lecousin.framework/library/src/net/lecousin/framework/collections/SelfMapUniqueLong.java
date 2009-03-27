@@ -85,7 +85,10 @@ public class SelfMapUniqueLong<EntryType extends SelfMap.Entry<Long>> implements
 		size = 0;
 	}
 
-	public EntryType remove(long id) {
+	public EntryType removeKey(Long id) {
+		return removeKey((long)id);
+	}
+	public EntryType removeKey(long id) {
 		int hc = (int)(id % buckets.length);
 		Element<EntryType> ptr = buckets[hc];
 		if (ptr == null) return null;
@@ -115,8 +118,8 @@ public class SelfMapUniqueLong<EntryType extends SelfMap.Entry<Long>> implements
 		return null;
 	}
 
-	public EntryType remove(EntryType entry) {
-		return remove((long)entry.getHashObject());
+	public EntryType removeEntry(EntryType entry) {
+		return removeKey((long)entry.getHashObject());
 	}
 	
 	public EntryType removeFirst() {
@@ -135,18 +138,21 @@ public class SelfMapUniqueLong<EntryType extends SelfMap.Entry<Long>> implements
 
 	@SuppressWarnings("unchecked")
 	public boolean remove(Object o)	{ 
-		return remove((EntryType)o) != null;
+		return removeEntry((EntryType)o) != null;
 	}
 
 	@SuppressWarnings("unchecked")
 	public boolean removeAll(Collection<?> c) {
 		boolean result = false;
 		for (EntryType e : (Iterable<? extends EntryType>)c) {
-			if (remove(e) != null) result = true;
+			if (removeEntry(e) != null) result = true;
 		}
 		return result;
 	}
 
+	public EntryType get(Long id) {
+		return get((long)id);
+	}
 	public EntryType get(long id) {
 		Element<EntryType> ptr = getBucket(id);
 		if (ptr == null) return null;
@@ -159,6 +165,9 @@ public class SelfMapUniqueLong<EntryType extends SelfMap.Entry<Long>> implements
 		return null;
 	}
 
+	public boolean containsKey(Long id) {
+		return containsKey((long)id);
+	}
 	public boolean containsKey(long id) {
 		Element<EntryType> ptr = getBucket(id);
 		if (ptr == null) return false;

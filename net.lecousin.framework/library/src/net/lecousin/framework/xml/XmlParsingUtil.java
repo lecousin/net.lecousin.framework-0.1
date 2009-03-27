@@ -141,11 +141,13 @@ public class XmlParsingUtil {
 		do {
 			if (quot != 0 && c == quot)
 				return new Pair<String,Integer>(value.toString(), pos+1);
-			if (c == '\\') {
+			if (c == '\\' && quot != 0) {
 				if (pos == s.length()-1)
 					return new Pair<String,Integer>(value.toString(), pos+1);
 				c = s.charAt(++pos);
 			}
+			if (quot == 0 && (isSpace(c) || c=='>' || (c=='/' && pos < s.length()-1 && s.charAt(pos+1) == '>')))
+				return new Pair<String,Integer>(value.toString(), pos);
 			value.append(c);
 			if (pos == s.length()-1)
 				return new Pair<String,Integer>(value.toString(), pos+1);

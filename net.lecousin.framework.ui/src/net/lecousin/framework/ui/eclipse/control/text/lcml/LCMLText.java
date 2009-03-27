@@ -16,6 +16,22 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
+/**
+ * Supports the following:<ul>
+ * <li>b: for bold section</li>
+ * <li>i: for italic section</li>
+ * <li>br: for break line</li>
+ * <li>a: for hyperlink<ul>
+ *     <li>href: link url, to be catched by an hyperlink listener</li>
+ *     </ul></li>
+ * <li>p: for paragraph<ul>
+ *     <li>marginTop: spacing before the paragraph (default is 3)</li>
+ *     <li>marginBotton: spacing after the paragraph (default is 0)</li>
+ *     <li>marginLeft: indentation of the paragraph (default is 0)</li>
+ *     </ul></li>
+ * </ul> 
+ *
+ */
 public class LCMLText {
 
 	public LCMLText(Composite parent, boolean hScroll, boolean vScroll) {

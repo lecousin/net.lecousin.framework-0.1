@@ -7,11 +7,14 @@ import org.eclipse.swt.widgets.Composite;
 
 public class Paragraph extends SectionContainer {
 
-	public Paragraph() {
-		
+	public Paragraph(int marginTop, int marginBottom, int marginLeft) {
+		this.marginTop = marginTop;
+		this.marginBottom = marginBottom;
+		this.marginLeft = marginLeft;
 	}
 
 	private Composite panel = null;
+	private int marginTop, marginBottom, marginLeft;
 	
 	public void removeControls() {
 		if (panel == null) return;
@@ -20,7 +23,8 @@ public class Paragraph extends SectionContainer {
 	}
 	
 	public Point refreshControls(Composite parent, int maxWidth) {
-		refreshSize(parent, new Position(), maxWidth, true);
+		Position pos = new Position();
+		refreshSize(parent, pos, maxWidth, true);
 		return panel.getSize();
 	}
 	
@@ -46,9 +50,9 @@ public class Paragraph extends SectionContainer {
 		subPos.y += subPos.lineHeight;
 		//Point size = new Point(subPos.width+200, subPos.y+100);
 		if (updateControls)
-			panel.setBounds(0, pos.y, subPos.width, subPos.y);
-		pos.y += subPos.y;
-		if (subPos.width > pos.width)
-			pos.width = subPos.width;
+			panel.setBounds(marginLeft, pos.y + marginTop, subPos.width, subPos.y + marginBottom);
+		pos.y += marginTop + subPos.y + marginBottom;
+		if (subPos.width + marginLeft > pos.width)
+			pos.width = subPos.width + marginLeft;
 	}
 }

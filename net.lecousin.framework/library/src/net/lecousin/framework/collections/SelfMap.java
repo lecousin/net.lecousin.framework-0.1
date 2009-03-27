@@ -19,4 +19,11 @@ public interface SelfMap<HashType, EntryType extends SelfMap.Entry<HashType>>
 	  public HashType getHashObject() { return hash; }
 	  public EntryType contained() { return entry; } 
   }
+  
+  public void put(EntryType entry);
+  public EntryType get(HashType key);
+  public EntryType removeEntry(EntryType entry);
+  public EntryType removeKey(HashType key);
+  public boolean containsKey(HashType key);
+  public boolean containsEntry(EntryType entry);
 }

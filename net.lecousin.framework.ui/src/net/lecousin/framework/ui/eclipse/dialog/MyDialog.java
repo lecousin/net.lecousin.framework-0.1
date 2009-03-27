@@ -6,6 +6,8 @@ import net.lecousin.framework.thread.RunnableWithData;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
+import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.events.ShellListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
@@ -413,5 +415,37 @@ public abstract class MyDialog extends Dialog {
 		r.y = pt.y;
 		return r;
 	}
-    
+
+	protected void makeSubShell() {
+		if (getParent() == null) return;
+		getParent().setEnabled(false);
+		getParent().addShellListener(new ShellListener() {
+			public void shellActivated(ShellEvent e) {
+				if (!shell.isDisposed())
+					shell.setActive();
+			}
+			public void shellClosed(ShellEvent e) {
+			}
+			public void shellDeactivated(ShellEvent e) {
+			}
+			public void shellDeiconified(ShellEvent e) {
+			}
+			public void shellIconified(ShellEvent e) {
+			}
+		});
+		shell.addShellListener(new ShellListener() {
+			public void shellActivated(ShellEvent e) {
+			}
+			public void shellClosed(ShellEvent e) {
+				if (getParent() != null && !getParent().isDisposed())
+					getParent().setEnabled(true);
+			}
+			public void shellDeactivated(ShellEvent e) {
+			}
+			public void shellDeiconified(ShellEvent e) {
+			}
+			public void shellIconified(ShellEvent e) {
+			}
+		});
+	}
 }

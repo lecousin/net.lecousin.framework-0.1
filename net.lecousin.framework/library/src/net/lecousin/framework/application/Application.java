@@ -25,6 +25,8 @@ public class Application {
 	
 	public static File deployPath = null;
 	
+	public static boolean isDebugEnabled = false;
+	
 	private static Monitor monitor = null;
 	public static Monitor getMonitor() {
 		if (monitor == null) {

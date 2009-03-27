@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="net.lecousin.framework.files.register">
+      <register
+            class="net.lecousin.framework.files.video.VideoFileRegister">
+      </register>
+   </extension>
+
+</plugin>

@@ -232,7 +232,7 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 					public String getText(T element) { return LCTableProvider_SingleColumnText.this.getText(element); }
 					public Image getImage(T element) { return LCTableProvider_SingleColumnText.this.getImage(element); }
 					public int getAlignment() { return alignment; }
-					public int getDefaultWidth() { return -1; }
+					public int getDefaultWidth() { return 200; }
 					public Font getFont(T element) { return null; }
 					public int compare(T element1, String text1, T element2, String text2) { return text1.compareTo(text2); }
 				}

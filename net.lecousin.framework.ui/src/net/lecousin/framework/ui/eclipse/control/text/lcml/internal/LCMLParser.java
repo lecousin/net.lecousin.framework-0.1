@@ -3,7 +3,6 @@ package net.lecousin.framework.ui.eclipse.control.text.lcml.internal;
 import net.lecousin.framework.Pair;
 import net.lecousin.framework.Triple;
 import net.lecousin.framework.log.Log;
-import net.lecousin.framework.strings.StringUtil;
 import net.lecousin.framework.xml.XmlParsingUtil;
 import net.lecousin.framework.xml.XmlUtil;
 import net.lecousin.framework.xml.XmlParsingUtil.Node;
@@ -11,7 +10,7 @@ import net.lecousin.framework.xml.XmlParsingUtil.Node;
 public class LCMLParser {
 
 	public static Paragraph parse(String ml) {
-		Paragraph p = new Paragraph();
+		Paragraph p = new Paragraph(0, 0, 0);
 		parse(p, ml, 0, new Style());
 		return p;
 	}
@@ -21,17 +20,23 @@ public class LCMLParser {
 		int italic = 0;
 		String link = null;
 		void put(String text, Paragraph p) {
-			String[] lines = StringUtil.splitLines(text);
-			boolean first = true;
-			for (String line : lines) {
-				line = XmlUtil.decodeXML(line);
-				if (first) first = false;
-				else p.add(new BreakLine());
-				if (link != null)
-					p.add(new Link(line, link));
-				else
-					p.add(new Text(line, bold > 0, italic > 0));
-			}
+			String line = XmlUtil.decodeXML(text);
+			if (link != null)
+				p.add(new Link(line, link));
+			else
+				p.add(new Text(line, bold > 0, italic > 0));
+
+//			String[] lines = StringUtil.splitLines(text);
+//			boolean first = true;
+//			for (String line : lines) {
+//				line = XmlUtil.decodeXML(line);
+//				if (first) first = false;
+//				else p.add(new BreakLine());
+//				if (link != null)
+//					p.add(new Link(line, link));
+//				else
+//					p.add(new Text(line, bold > 0, italic > 0));
+//			}
 		}
 	}
 	
@@ -137,7 +142,29 @@ public class LCMLParser {
 
 
 	private static int handleParagraph(Node node, boolean closed, Paragraph p, String ml, int pos, Style style) {
-		Paragraph newP = new Paragraph();
+		int marginTop = 3;
+		int marginBottom = 0;
+		int marginLeft = 0;
+		if (node.attributes.get("margintop") != null)
+			try { marginTop = Integer.parseInt(node.attributes.get("margintop")); }
+			catch (NumberFormatException e) {
+				if (Log.warning(LCMLParser.class))
+					Log.warning(LCMLParser.class, "Invalid marginTop value for <p> node: must be an integer.");
+			}
+		if (node.attributes.get("marginbottom") != null)
+			try { marginBottom = Integer.parseInt(node.attributes.get("marginbottom")); }
+			catch (NumberFormatException e) {
+				if (Log.warning(LCMLParser.class))
+					Log.warning(LCMLParser.class, "Invalid marginBottom value for <p> node: must be an integer.");
+			}
+		if (node.attributes.get("marginleft") != null)
+			try { marginLeft = Integer.parseInt(node.attributes.get("marginleft")); }
+			catch (NumberFormatException e) {
+				if (Log.warning(LCMLParser.class))
+					Log.warning(LCMLParser.class, "Invalid marginLeft value for <p> node: must be an integer.");
+			}
+		Paragraph newP = new Paragraph(marginTop, marginBottom, marginLeft);
+		p.add(newP);
 		return parse(newP, ml, pos, new Style());
 	}
 	private static boolean handleCloseParagraph(Style style) {

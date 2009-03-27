@@ -55,7 +55,7 @@ public class ChunkedTransfer extends Transfer {
 					Log.error(this, "Invalid chunk size: character '" + (char)i + "' (0x" + StringUtil.toStringHex(i, 2) + ") is not a valid hexadecimal character.");
 				return -1;
 			}
-			size += (long)isize << ((7-pos)*4);
+			size = (size << 4) + isize;
 			pos++;
 		} while (pos < 8);
 		int i;

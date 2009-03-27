@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: lecousin framework - Files - Video
+Bundle-SymbolicName: net.lecousin.framework.files.video;singleton:=true
+Bundle-Version: 0.1.0
+Bundle-Activator: net.lecousin.framework.files.video.internal.EclipsePlugin
+Bundle-Vendor: Guillaume LE COUSIN
+Require-Bundle: org.eclipse.core.runtime,
+ net.lecousin.framework;bundle-version="0.1.0",
+ net.lecousin.framework.files;bundle-version="0.1.0"
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-ActivationPolicy: lazy
+Export-Package: net.lecousin.framework.files.video,
+ net.lecousin.framework.files.video.avi

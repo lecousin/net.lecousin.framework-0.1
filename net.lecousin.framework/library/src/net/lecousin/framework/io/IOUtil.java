@@ -55,10 +55,27 @@ public class IOUtil {
 	
 	public static long readLong(byte[] buffer, int offset) {
 		long value = 0;
-		value += (buffer[offset] & 0xFF) << 24;
-		value += (buffer[offset+1] & 0xFF) << 16;
-		value += (buffer[offset+2] & 0xFF) << 8;
-		value += (buffer[offset+3] & 0xFF);
+		value += (buffer[offset+3] & 0xFF) << 24;
+		value += (buffer[offset+2] & 0xFF) << 16;
+		value += (buffer[offset+1] & 0xFF) << 8;
+		value += (buffer[offset] & 0xFF);
 		return value;
+	}
+	
+	public static int readAllBuffer(InputStream stream, byte[] buffer) throws IOException {
+		return readAllBuffer(stream, buffer, 0, buffer.length);
+	}
+	
+	public static int readAllBuffer(InputStream stream, byte[] buffer, int off, int len) throws IOException {
+		int total = 0;
+		do {
+			int l = len-total;
+			int nb = stream.read(buffer, off, l);
+			if (nb <= 0)
+				return total;
+			off += nb;
+			total += nb;
+		} while (total < len);
+		return total;
 	}
 }

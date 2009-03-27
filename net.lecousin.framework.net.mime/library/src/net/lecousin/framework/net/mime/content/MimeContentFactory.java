@@ -35,8 +35,11 @@ public class MimeContentFactory {
 			return new TextContent(transfer, header, progress, amount);
 		if (mainType.equalsIgnoreCase("image"))
 			return new ImageContent(transfer, header, progress, amount);
-		if (mainType.equalsIgnoreCase("application"))
+		if (mainType.equalsIgnoreCase("application")) {
+			if (subType.equalsIgnoreCase("xml"))
+				return new TextContent(transfer, header, progress, amount);
 			return new ApplicationContent(transfer, header, progress, amount);
+		}
 		if (Log.error(MimeContentFactory.class))
 			Log.error(MimeContentFactory.class, "Content type '" + type + "' not supported.");
 		progress.progress(amount);

@@ -310,24 +310,26 @@ public abstract class UIUtil {
     			Point size = super.computeSize(hint, hint2, changed);
     			if ((getStyle() & SWT.HORIZONTAL) != 0) {
     				if (hint == SWT.DEFAULT)
-    					size.x = 1;
+    					size.x = 10;
     			} else {
     				if (hint2 == SWT.DEFAULT)
-    					size.y = 1;
+    					size.y = 10;
     			}
     			return size;
     		}
     	};
-    	if (fill && horiz) {
-    		Layout layout = parent.getLayout();
-    		if (layout instanceof GridLayout) {
-    			gridDataHorizFill(label);
-    		}
-    	} else if (fill) {
-    		Layout layout = parent.getLayout();
-    		if (layout instanceof GridLayout) {
-    			label.setLayoutData(gridDataVert(1, true));
-    		}
+    	if (fill) {
+	    	if (horiz) {
+	    		Layout layout = parent.getLayout();
+	    		if (layout instanceof GridLayout) {
+	    			gridDataHorizFill(label);
+	    		}
+	    	} else {
+	    		Layout layout = parent.getLayout();
+	    		if (layout instanceof GridLayout) {
+	    			label.setLayoutData(gridDataVert(1, true));
+	    		}
+	    	}
     	}
     	return label;
     }
