@@ -27,7 +27,7 @@ public class ID3Loader {
 				return result;
 		}
 		
-		if (nb < 2 || (buffer[0] & 0xFF) != 0xFF || (buffer[1] & 0xFF) != 0xFB)
+		if (nb < 2 || (buffer[0] & 0xFF) != 0xFF || (buffer[1] & 0xE0) != 0xE0)
 			return null;
 
 		int i = stream.available();

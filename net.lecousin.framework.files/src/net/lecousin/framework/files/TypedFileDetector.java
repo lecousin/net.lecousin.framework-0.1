@@ -24,22 +24,25 @@ public class TypedFileDetector {
 	private TypedFileDetector() {}
 	
 	public static TypedFile detect(String uri, Iterable<FileType> restriction) throws CoreException, IOException, URISyntaxException {
-		return detect(new URI(uri), restriction, null);
+		return detect(new URI(uri), restriction, null, null);
 	}
 	public static TypedFile detect(URI uri, Iterable<FileType> restriction) throws CoreException, IOException {
-		return detect(uri, restriction, null);
+		return detect(uri, restriction, null, null);
 	}
 	public static TypedFile detect(URL url, Iterable<FileType> restriction) throws CoreException, IOException, URISyntaxException {
-		return detect(url.toURI(), restriction, null);
+		return detect(url.toURI(), restriction, null, null);
 	}
 	public static TypedFile detect(File file, Iterable<FileType> restriction) throws CoreException, IOException {
-		return detect(file.toURI(), restriction, null);
+		return detect(file.toURI(), restriction, null, null);
 	}
 	public static TypedFile detect(IFileStore file, Iterable<FileType> restriction) throws CoreException, IOException {
-		return detect(file.toURI(), restriction, file);
+		return detect(file.toURI(), restriction, null, file);
+	}
+	public static TypedFile detect(URI uri, LCPartialBufferedInputStream stream, Iterable<FileType> restriction) throws CoreException, IOException {
+		return detect(uri, restriction, stream, null);
 	}
 	
-	private static TypedFile detect(URI uri, Iterable<FileType> restriction, IFileStore store) throws CoreException, IOException {
+	private static TypedFile detect(URI uri, Iterable<FileType> restriction, LCPartialBufferedInputStream stream, IFileStore store) throws CoreException, IOException {
 		// retrieve detectors by sorting them: first by scheme, then by extension, and finally add all others
 		Set<FileTypeDetector> detectors = new LinkedHashSet<FileTypeDetector>();
 		String scheme = uri.getScheme();
@@ -84,7 +87,7 @@ public class TypedFileDetector {
 		
 		// do the detection
 		if (detectors.isEmpty()) return null;
-		return detect(scheme, extension, uri, detectors, store);
+		return detect(scheme, extension, uri, detectors, stream, store);
 	}
 	
 	private static Set<FileType> getEligibleFileTypes(Iterable<FileType> restriction) {
@@ -106,13 +109,15 @@ public class TypedFileDetector {
 			catch (CoreException e) { return null; }
 		}
 	}
-	private static TypedFile detect(String scheme, String extension, URI uri, Iterable<FileTypeDetector> detectors, IFileStore store) throws CoreException, IOException {
-		if (store == null)
-			store = EFS.getStore(uri);
-		LCPartialBufferedInputStream in = new LCPartialBufferedInputStream(new Provider(store));
+	private static TypedFile detect(String scheme, String extension, URI uri, Iterable<FileTypeDetector> detectors, LCPartialBufferedInputStream stream, IFileStore store) throws CoreException, IOException {
+		if (stream == null) {
+			if (store == null)
+				store = EFS.getStore(uri);
+			stream = new LCPartialBufferedInputStream(new Provider(store));
+		}
 		for (FileTypeDetector detector : detectors) {
-			in.move(0);
-			TypedFile file = detector.detect(scheme, extension, uri, in);
+			stream.move(0);
+			TypedFile file = detector.detect(scheme, extension, uri, stream);
 			if (file != null)
 				return file;
 		}

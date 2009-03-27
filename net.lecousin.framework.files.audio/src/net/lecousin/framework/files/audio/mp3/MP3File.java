@@ -22,7 +22,7 @@ public class MP3File extends AudioFile {
 			id3 = ID3Format.load(in); 
 		} catch (IOException e) {}
 		if (id3 == null)
-			if ((buf[0] & 0xFF) != 0xFF || (buf[1] & 0xFF) != 0xFB) 
+			if ((buf[0] & 0xFF) != 0xFF || (buf[1] & 0xE0) != 0xE0) 
 				return null;
 		return new MP3File(uri, id3);
 	}

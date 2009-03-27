@@ -17,6 +17,9 @@ public class FileType implements SelfMap.Entry<String> {
 	
 	public FileType getParent() { return parent; }
 	public String getName() { return name; }
+	public String getFullName() {
+		return parent == null ? name : parent.getFullName()+'/'+name;
+	}
 	
 	public String getHashObject() { return name; }
 	

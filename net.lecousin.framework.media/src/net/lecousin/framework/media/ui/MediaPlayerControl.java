@@ -102,7 +102,8 @@ public class MediaPlayerControl {
 		}
 		if (visual == null) {
 			visual = player.createVisual(visualPanel);
-			visual.setLayoutData(UIUtil.gridData(1, true, 1, true));
+			if (visual != null)
+				visual.setLayoutData(UIUtil.gridData(1, true, 1, true));
 			visualPanel.layout(true, true);
 		}
 	}

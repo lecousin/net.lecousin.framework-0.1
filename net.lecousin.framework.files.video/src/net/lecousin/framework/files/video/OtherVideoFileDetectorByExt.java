@@ -17,7 +17,7 @@ public class OtherVideoFileDetectorByExt implements FileTypeDetector {
 	}
 
 	private static String[] extensions = new String[] {
-		"mpg", "mpeg", "asf", "divx", "dv", "flv", "gfx", "m1v", "m2v", "m2ts", "m4v", "mkv",
+		"avi", "mpg", "mpeg", "asf", "divx", "dv", "flv", "gfx", "m1v", "m2v", "m2ts", "m4v", "mkv",
 		"mov", "mp2", "mp4", "mpeg1", "mpeg2", "mpeg4", "mts", "mxf", "ogm", "ts", "vob", "wmv"
 	};
 	public String[] getSupportedExtensions() {
