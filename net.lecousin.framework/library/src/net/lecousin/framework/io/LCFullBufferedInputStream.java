@@ -25,6 +25,11 @@ public class LCFullBufferedInputStream extends LCMovableInputStream {
 	private boolean endReached = false;
 	private int lastSize = 0;
 	
+	@Override
+	public int available() throws IOException {
+		return (int)(buffered - pos + stream.available());
+	}
+	
 	public void moveToStart() {
 		pos = 0;
 	}

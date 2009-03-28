@@ -18,15 +18,15 @@ public class M3UPlayList extends PlayList {
 	public static M3UPlayList load(URI uri, InputStream stream) {
 		TextLineInputStream in = new TextLineInputStream(stream);
 		List<String> list = new LinkedList<String>();
-		while (!in.isEndOfStream()) {
-			String line;
-			try { line = in.readLine(); }
-			catch (IOException e) { break; }
-			line = line.trim();
-			if (line.length() == 0) continue;
-			if (line.charAt(0) == '#') continue;
-			list.add(line);
-		}
+		String line;
+		try {
+			while ((line = in.readLine()) != null) {
+				line = line.trim();
+				if (line.length() == 0) continue;
+				if (line.charAt(0) == '#') continue;
+				list.add(line);
+			}
+		} catch (IOException e) {}
 		Info info = new Info(FileSystemUtil.getFileNameWithoutExtension(uri.getPath()), list);
 		return new M3UPlayList(uri, info);
 	}

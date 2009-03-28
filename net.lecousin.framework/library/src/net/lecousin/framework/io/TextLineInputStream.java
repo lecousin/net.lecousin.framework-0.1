@@ -17,29 +17,29 @@ public class TextLineInputStream {
 		StringBuilder s = new StringBuilder();
 		int c = pushBack;
 		if (c == -1) {
-			if (in.available() == 0) return "";
 			c = in.read();
 		} else
 			pushBack = -1;
+		if (c == -1)
+			return null;
 		while (c != '\n') {
 			if (c == '\r') {
 				lineNumber++;
-				if (in.available() == 0)
-					return s.toString();
 				pushBack = in.read();
+				if (pushBack == -1)
+					return s.toString();
 				if (pushBack == '\n')
 					pushBack = -1;
 				return s.toString();
 			}
 			s.append((char)c);
-			if (in.available() == 0) break;
 			c = in.read();
+			if (c == -1) break;
 		}
 		lineNumber++;
 		return s.toString();
 	}
 	
-	public boolean isEndOfStream() { try { return in.available() == 0; } catch (IOException e) { return true; } }
 	public int getLineNumber() { return lineNumber; }
 	
 	public void close() throws IOException { in.close(); }

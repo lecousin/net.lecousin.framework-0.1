@@ -59,6 +59,7 @@ public class MP3File extends AudioFile {
 				stream.move(startPos);
 				Bitstream bs = new Bitstream(stream, true, true);
 				Header h = bs.readFrame();
+				if (h == null) return null;
 				if (h != null)
 					id3.setDuration((long)h.total_ms((int)stream.getSize()));
 			} catch (BitstreamException e) {
