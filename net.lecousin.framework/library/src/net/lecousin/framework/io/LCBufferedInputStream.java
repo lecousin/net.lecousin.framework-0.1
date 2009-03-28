@@ -38,7 +38,7 @@ public class LCBufferedInputStream extends InputStream {
 		if (bufferPos >= bufferLen)
 			bufferize();
 		if (bufferPos >= bufferLen) return -1;
-		return buffer[bufferPos++];
+		return buffer[bufferPos++] & 0xFF;
 	}
 	@Override
 	public int available() throws IOException {

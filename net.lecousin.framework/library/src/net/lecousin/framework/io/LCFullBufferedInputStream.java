@@ -4,13 +4,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
-public class LCFullBufferedInputStream extends InputStream {
+public class LCFullBufferedInputStream extends LCMovableInputStream {
 
 	public static final int DEFAULT_FIRST_BUFFER_SIZE = 2048;
 	public static final int DEFAULT_NEXT_BUFFER_SIZE = 32768;
 	
-	public LCFullBufferedInputStream(InputStream stream) { this(stream, DEFAULT_FIRST_BUFFER_SIZE, DEFAULT_NEXT_BUFFER_SIZE); }
-	public LCFullBufferedInputStream(InputStream stream, int firstBufferSize, int nextBufferSize) {
+	public LCFullBufferedInputStream(InputStream stream, long size) { this(stream, DEFAULT_FIRST_BUFFER_SIZE, DEFAULT_NEXT_BUFFER_SIZE, size); }
+	public LCFullBufferedInputStream(InputStream stream, int firstBufferSize, int nextBufferSize, long size) {
+		super(size);
 		this.stream = stream;
 		this.firstSize = firstBufferSize;
 		this.nextSize = nextBufferSize;
@@ -28,6 +29,7 @@ public class LCFullBufferedInputStream extends InputStream {
 		pos = 0;
 	}
 	
+	@Override
 	public void move(long position) throws IOException {
 		if (position <= buffered) {
 			pos = position;
@@ -36,21 +38,24 @@ public class LCFullBufferedInputStream extends InputStream {
 		skip(position - pos);
 	}
 	
-	/** skip <code>size</code> bytes, and return the new position (may be less than expected if end of stream has been reached). */
+	@Override
 	public long skip(long size) throws IOException {
 		if (buffered - pos >= size) {
 			pos += size;
-			return pos;
+			return size;
 		}
+		long prevPos = pos;
 		size -= buffered-pos;
 		pos = buffered;
 		bufferize(size);
-		pos += size;
-		if (pos > buffered)
+		if (buffered < prevPos+size)
 			pos = buffered;
-		return pos;
+		else
+			pos += size;
+		return pos-prevPos;
 	}
 	
+	@Override
 	public long getPosition() { return pos; }
 	
 	private void bufferize(long size) throws IOException {
@@ -152,12 +157,12 @@ public class LCFullBufferedInputStream extends InputStream {
 		return l;
 	}
 	
+	private byte[] oneBuf = new byte[1];
 	@Override
 	public int read() throws IOException {
-		byte[] buf = new byte[1];
-		int nb = read(buf);
+		int nb = read(oneBuf);
 		if (nb <= 0) return -1;
-		return buf[0];
+		return oneBuf[0] & 0xFF;
 	}
 	
 	@Override

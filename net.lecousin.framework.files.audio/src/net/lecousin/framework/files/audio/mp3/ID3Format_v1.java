@@ -64,7 +64,6 @@ public class ID3Format_v1 extends ID3Format {
 	}
 	
 	public byte[] getCDIdentifier() { return null; }
-	public long getDuration() { return -1; }
 	public int getNumberOfTracksInAlbum() { return -1; }
 	public List<Picture> getPictures() { return null; }
 }

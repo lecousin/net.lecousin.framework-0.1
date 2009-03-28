@@ -108,6 +108,11 @@ public class TypedFileDetector {
 			try { return store.openInputStream(EFS.NONE, null); }
 			catch (CoreException e) { return null; }
 		}
+		public long getSize() {
+			long size = store.fetchInfo().getLength();
+			if (size == EFS.NONE) return -1;
+			return size;
+		}
 	}
 	private static TypedFile detect(String scheme, String extension, URI uri, Iterable<FileTypeDetector> detectors, LCPartialBufferedInputStream stream, IFileStore store) throws CoreException, IOException {
 		if (stream == null) {

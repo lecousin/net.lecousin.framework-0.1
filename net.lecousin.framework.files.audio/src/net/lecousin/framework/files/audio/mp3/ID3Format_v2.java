@@ -6,6 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.lecousin.framework.Pair;
 import net.lecousin.framework.files.audio.AudioFileInfo.Picture.Type;
 import net.lecousin.framework.io.IOUtil;
 import net.lecousin.framework.io.LCBufferedInputStream;
@@ -13,8 +14,12 @@ import net.lecousin.framework.log.Log;
 
 public class ID3Format_v2 extends ID3Format {
 
-	ID3Format_v2(byte[] buffer, int bufferOffset, int len, InputStream stream) throws IOException {
-		LCBufferedInputStream in = new LCBufferedInputStream(buffer, bufferOffset, len, stream);
+	private ID3Format_v2() {
+	}
+	
+	static Pair<ID3Format_v2,Long> create(byte[] buffer, int len, InputStream stream) throws IOException {
+		ID3Format_v2 id3 = new ID3Format_v2();
+		LCBufferedInputStream in = new LCBufferedInputStream(buffer, 0, len, stream);
 		byte[] header = new byte[10];
 		in.read(header);
 		long size = readSize(header, 6);
@@ -31,14 +36,15 @@ public class ID3Format_v2 extends ID3Format {
 		long l;
 		do {
 			if (header[3] <= 2)
-				l = readFrame_1(in, pos, size);
+				l = id3.readFrame_1(in, pos, size);
 			else
-				l = readFrame_2(in, pos, size);
+				l = id3.readFrame_2(in, pos, size);
 			pos += l;
 		} while (pos < size && l != 0);
+		return new Pair<ID3Format_v2,Long>(id3, size+10);
 	}
 	
-	private long readSize(byte[] buf, int pos) {
+	private static long readSize(byte[] buf, int pos) {
 		long value = 0;
 		value += (buf[pos] & 0x7F) << 21;
 		value += (buf[pos+1] & 0x7F) << 14;
@@ -83,7 +89,7 @@ public class ID3Format_v2 extends ID3Format {
 				number_of_tracks_in_album = toInt(s.substring(i+1));
 			}
 		} else if (type.equals("TLE"))
-			length = toLong(readText(frameBody));
+			setDuration(toLong(readText(frameBody)));
 		else if (type.equals("TMT")) { /* media type, skip */ }
 		else if (type.equals("TFT")) { /* file type, skip */ }
 		else if (type.equals("TXX")) { /* user defined text, skip */ }
@@ -136,7 +142,7 @@ public class ID3Format_v2 extends ID3Format {
 				number_of_tracks_in_album = toInt(s.substring(i+1));
 			}
 		} else if (type.equals("TLEN"))
-			length = toLong(readText(frameBody));
+			setDuration(toLong(readText(frameBody)));
 		else if (type.equals("TMED")) { /* media type, skip */ }
 		else if (type.equals("TFLT")) { /* file type, skip */ }
 		else if (type.equals("TXXX")) { /* user defined text, skip */ }
@@ -230,7 +236,6 @@ public class ID3Format_v2 extends ID3Format {
 	private int number_of_tracks_in_album = -1;
 	private int year = -1;
 	private String genre;
-	private long length = -1;
 	private byte[] mcdi = null;
 	private List<Picture> pictures = new LinkedList<Picture>();
 	
@@ -242,7 +247,6 @@ public class ID3Format_v2 extends ID3Format {
 	public int getYear() { return year; }
 	public String getGenre() { return genre; }
 	public byte[] getCDIdentifier() { return mcdi; }
-	public long getDuration() { return length; }
 	public int getNumberOfTracksInAlbum() { return number_of_tracks_in_album; }
 	public List<Picture> getPictures() { return pictures; }
 	

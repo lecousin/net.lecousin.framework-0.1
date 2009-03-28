@@ -3,13 +3,15 @@ package net.lecousin.framework.io;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class LCPartialBufferedInputStream extends InputStream {
+public class LCPartialBufferedInputStream extends LCMovableInputStream {
 
 	public interface StreamProvider {
 		public InputStream open();
+		public long getSize();
 	}
 	
 	public LCPartialBufferedInputStream(StreamProvider provider) {
+		super(provider.getSize());
 		this.provider = provider;
 	}
 	
@@ -23,8 +25,13 @@ public class LCPartialBufferedInputStream extends InputStream {
 	private static final int NEXT_SIZE = 32768;
 	private static final int FIRST_STREAM_SIZE = FIRST_SIZE + NEXT_SIZE*10;
 	
+	@Override
 	public void move(long position) {
 		pos = position;
+	}
+	@Override
+	public long getPosition() {
+		return pos;
 	}
 	
 	@Override
@@ -34,7 +41,7 @@ public class LCPartialBufferedInputStream extends InputStream {
 				InputStream stream = provider.open();
 				if (stream == null)
 					return -1;
-				firstStream = new LCFullBufferedInputStream(stream, FIRST_SIZE, NEXT_SIZE);
+				firstStream = new LCFullBufferedInputStream(stream, FIRST_SIZE, NEXT_SIZE, -1);
 			}
 			firstStream.move(pos);
 			int result = firstStream.read();
@@ -80,7 +87,7 @@ public class LCPartialBufferedInputStream extends InputStream {
 			if (firstStream == null) {
 				InputStream stream = provider.open();
 				if (stream == null) return -1;
-				firstStream = new LCFullBufferedInputStream(stream, FIRST_SIZE, NEXT_SIZE);
+				firstStream = new LCFullBufferedInputStream(stream, FIRST_SIZE, NEXT_SIZE, -1);
 			}
 			firstStream.move(pos);
 			int l = (int)(len > FIRST_STREAM_SIZE - pos ? FIRST_STREAM_SIZE - pos : len);
