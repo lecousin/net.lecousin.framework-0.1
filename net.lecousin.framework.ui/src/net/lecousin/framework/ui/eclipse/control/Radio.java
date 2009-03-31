@@ -9,6 +9,10 @@ import net.lecousin.framework.event.Event;
 import net.lecousin.framework.ui.eclipse.UIUtil;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
@@ -71,11 +75,30 @@ public class Radio extends Composite {
 			c.setLayoutData(UIUtil.gridDataHoriz(1, true));
 			previous = c;
 			list.add(c);
+			Focus f = new Focus(id);
+			UIControlUtil.recursiveFocusListener(c, f);
+			UIControlUtil.recursiveMouseListener(c, f, true);
 		}
 		for (int i = controls.length; i < layout.numColumns-1; ++i)
 			list.add(UIUtil.newLabel(this, ""));
 		optionControls.put(id, list);
 		UIControlUtil.autoresize(button);
+	}
+	private class Focus implements FocusListener, MouseListener {
+		Focus(String id) { this.id = id; }
+		String id;
+		public void focusGained(FocusEvent e) {
+			setSelection(id);
+		}
+		public void focusLost(FocusEvent e) {
+		}
+		public void mouseDoubleClick(MouseEvent e) {
+		}
+		public void mouseDown(MouseEvent e) {
+		}
+		public void mouseUp(MouseEvent e) {
+			setSelection(id);
+		}
 	}
 	
 	public void addOption(String id, String text) {
@@ -83,15 +106,19 @@ public class Radio extends Composite {
 	}
 	
 	public void setSelection(String id) {
+		boolean changed = false;
 		for (Iterator<Map.Entry<String,Button>> it = options.entrySet().iterator(); it.hasNext(); ) {
 			Map.Entry<String,Button> e = it.next();
 			boolean selected = e.getKey().equals(id);
+			if (e.getValue().getSelection() != selected) changed = true;
 			e.getValue().setSelection(selected);
-			LinkedList<Control> list = optionControls.get(e.getKey());
-			if (list != null)
-				for (Control ctrl : list)
-					ctrl.setEnabled(selected);
+//			LinkedList<Control> list = optionControls.get(e.getKey());
+//			if (list != null)
+//				for (Control ctrl : list)
+//					ctrl.setEnabled(selected);
 		}
+		if (changed)
+			selectionEvent.fire(id);
 	}
 	
 	public String getSelection() {

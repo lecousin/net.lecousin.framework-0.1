@@ -15,4 +15,5 @@ public interface MediaPlayerListener {
 	public void mediaTimeChanged(Media media, long time);
 	
 	public void volumeChanged(double volume);
+	public void muteChanged(boolean mute);
 }

@@ -5,17 +5,22 @@ import java.io.InputStream;
 
 import net.lecousin.framework.io.IOUtil;
 import net.lecousin.framework.log.Log;
+import net.lecousin.framework.net.http.Local;
 import net.lecousin.framework.net.mime.Mime;
 import net.lecousin.framework.progress.WorkProgress;
 
 public class HttpResponse {
 
-	public HttpResponse(InputStream in, WorkProgress progress, int amount) throws IOException {
+	public HttpResponse(InputStream in, WorkProgress progress, int amount, boolean progressIfNotOK) throws IOException {
+		if (progress != null)
+			progress.setSubDescription(Local.Waiting_response+"...");
 		String statusLine = IOUtil.readPart(in, "\r\n");
 		int i = statusLine.indexOf(' ');
 		if (i < 0) {
 			if (Log.error(this))
 				Log.error(this, "Invalid HTTP status line: " + statusLine);
+			if (progressIfNotOK)
+				progress.progress(amount);
 			return;
 		}
 		protocol = statusLine.substring(0,i);
@@ -23,12 +28,16 @@ public class HttpResponse {
 		if (j < 0) {
 			if (Log.error(this))
 				Log.error(this, "Invalid HTTP status line: " + statusLine);
+			if (progressIfNotOK)
+				progress.progress(amount);
 			return;
 		}
 		statusCode = Integer.parseInt(statusLine.substring(i+1,j));
 		statusDescription = statusLine.substring(j+1);
 		if (Log.debug(this))
 			Log.debug(this, "HTTP Response status: " + statusCode + " " + statusDescription);
+		if (!progressIfNotOK && statusCode/100 != 2)
+			progress = null;
 		mime = new Mime(in, progress, amount);
 	}
 	

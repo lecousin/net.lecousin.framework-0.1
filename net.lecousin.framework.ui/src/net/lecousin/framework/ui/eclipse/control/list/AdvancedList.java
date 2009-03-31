@@ -184,8 +184,8 @@ public class AdvancedList<T> extends Composite {
 		if (currentView == view) return;
 		if (currentView != null)
 			currentView.free();
-		controller.viewChanged(view);
 		currentView = view;
+		controller.viewChanged(view);
 		view.create();
 		for (Event<T> event : addElementEvents)
 			view.viewer.addAddElementEvent(event);

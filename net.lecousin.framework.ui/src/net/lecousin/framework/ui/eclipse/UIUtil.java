@@ -9,6 +9,7 @@ import net.lecousin.framework.event.Event;
 import net.lecousin.framework.event.Event.Listener;
 import net.lecousin.framework.event.Event.ListenerData;
 import net.lecousin.framework.thread.RunnableWithData;
+import net.lecousin.framework.ui.eclipse.control.BorderStyle;
 import net.lecousin.framework.ui.eclipse.control.ImageAndTextButton;
 import net.lecousin.framework.ui.eclipse.control.LabelButton;
 import net.lecousin.framework.ui.eclipse.control.Radio;
@@ -373,17 +374,18 @@ public abstract class UIUtil {
     	return radio;
     }
     
-    public static Spinner newSpinner(Composite parent, int min, int max, int increment, int currentValue, Event.Listener<Integer> changeListener) {
-    	Spinner spinner = new Spinner(parent, SWT.NONE);
+    public static Spinner newSpinner(Composite parent, int min, int max, int increment, int currentValue, Event.Listener<Integer> changeListener, boolean border) {
+    	Spinner spinner = new Spinner(parent, border ? SWT.BORDER : SWT.NONE);
     	spinner.setMinimum(min);
     	spinner.setMaximum(max);
     	spinner.setIncrement(increment);
     	spinner.setSelection(currentValue);
-    	spinner.addSelectionListener(new SelectionListenerWithData<Event.Listener<Integer>>(changeListener) {
-    		public void widgetSelected(SelectionEvent e) {
-    			data().fire(((Spinner)e.widget).getSelection());
-    		}
-    	});
+    	if (changeListener != null)
+	    	spinner.addSelectionListener(new SelectionListenerWithData<Event.Listener<Integer>>(changeListener) {
+	    		public void widgetSelected(SelectionEvent e) {
+	    			data().fire(((Spinner)e.widget).getSelection());
+	    		}
+	    	});
     	return spinner;
     }
 

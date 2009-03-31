@@ -12,6 +12,7 @@ public class VideoFileRegister implements TypedFileRegister {
 	public FileTypeDetector[] getDetectors() {
 		return new FileTypeDetector[] {
 			new VideoFileDetector(),
+			new OtherVideoFileDetectorByExt(),
 		};
 	}
 

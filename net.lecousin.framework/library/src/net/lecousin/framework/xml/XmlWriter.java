@@ -59,6 +59,7 @@ public class XmlWriter {
             xml.append("<").append(tag.name);
             for (Iterator<Pair<String,String>> it = tag.attributes.iterator(); it.hasNext(); ) {
                 Pair<String,String> attr = it.next();
+                if (attr.getValue1() == null || attr.getValue2() == null) continue;
                 xml.append(" ").append(attr.getValue1()).append("=").append(XmlUtil.toAttribute(attr.getValue2()));
             }
             if (tag.text.length() == 0) {

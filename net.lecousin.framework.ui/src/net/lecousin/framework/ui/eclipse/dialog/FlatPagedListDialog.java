@@ -1,5 +1,6 @@
 package net.lecousin.framework.ui.eclipse.dialog;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -27,7 +28,7 @@ import org.eclipse.swt.widgets.Shell;
 
 public class FlatPagedListDialog<T> extends FlatDialog {
 
-	public FlatPagedListDialog(Shell parent, String title, List<T> data, int elementsByPage, Provider<T> provider, Filter<T>[] filters) {
+	public FlatPagedListDialog(Shell parent, String title, Collection<? extends T> data, int elementsByPage, Provider<T> provider, Filter<T>[] filters) {
 		super(parent, title, true, true);
 		this.allData = data;
 		this.provider = provider;
@@ -38,7 +39,7 @@ public class FlatPagedListDialog<T> extends FlatDialog {
 				filter.setDialog(this);
 	}
 	
-	private List<T> allData;
+	private Collection<? extends T> allData;
 	private Provider<T> provider;
 	private List<T> filteredData = new LinkedList<T>();
 	private Filter<T>[] filters;

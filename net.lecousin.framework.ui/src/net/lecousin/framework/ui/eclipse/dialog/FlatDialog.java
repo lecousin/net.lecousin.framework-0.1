@@ -108,6 +108,14 @@ public abstract class FlatDialog extends MyDialog {
 			gd.grabExcessVerticalSpace = true;
 			contentPanel = new Composite(scroll, SWT.NONE);
 			scroll.setContent(contentPanel);
+			if (hScroll) {
+				scroll.getHorizontalBar().setIncrement(20);
+				scroll.getHorizontalBar().setPageIncrement(scroll.getClientArea().width);
+			}
+			if (vScroll) {
+				scroll.getVerticalBar().setIncrement(20);
+				scroll.getVerticalBar().setPageIncrement(scroll.getClientArea().height);
+			}
 			contentPanel.setData(new UIControlUtil.TopLevelResize());
 			if (!hScroll) scroll.setExpandHorizontal(true);
 			if (!hScroll) {
@@ -120,6 +128,17 @@ public abstract class FlatDialog extends MyDialog {
 					}
 				});
 			}
+			scroll.addControlListener(new ControlListener() {
+				public void controlMoved(ControlEvent e) {
+				}
+				public void controlResized(ControlEvent e) {
+					ScrolledComposite scroll = (ScrolledComposite)e.widget;
+					if (hScroll)
+						scroll.getHorizontalBar().setPageIncrement(scroll.getClientArea().width);
+					if (vScroll)
+						scroll.getVerticalBar().setPageIncrement(scroll.getClientArea().height);
+				}
+			});
 		} else {
 			contentPanel = new Composite(panel, SWT.NONE);
 			UIUtil.gridDataHorizFill(contentPanel);

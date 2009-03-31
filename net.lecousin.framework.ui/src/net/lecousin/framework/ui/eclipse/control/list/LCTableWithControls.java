@@ -125,19 +125,25 @@ public class LCTableWithControls<T> extends Composite {
 	
 	private void selChanged() {
 		List<T> sel = table.getSelection();
+		boolean changed = false;
 		if (sel == null || sel.size() != 1) {
 			GridData gd = (GridData)detailsPanel.getLayoutData();
 			if (!gd.exclude) {
 				UIControlUtil.clear(detailsPanel);
 				gd.exclude = true;
+				changed = true;
 			}
 		} else {
 			UIControlUtil.clear(detailsPanel);
 			provider.createElementDetailsControl(detailsPanel, sel.get(0));
-			GridData gd = (GridData)detailsPanel.getLayoutData();
-			gd.exclude = false;
+			if (detailsPanel.getChildren().length > 0) {
+				GridData gd = (GridData)detailsPanel.getLayoutData();
+				gd.exclude = false;
+				changed = true;
+			}
 		}
-		UIControlUtil.autoresize(detailsPanel);
+		if (changed)
+			UIControlUtil.autoresize(detailsPanel);
 	}
 	
 	private void add() {

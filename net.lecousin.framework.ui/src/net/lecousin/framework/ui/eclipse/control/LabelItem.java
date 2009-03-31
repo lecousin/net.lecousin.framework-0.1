@@ -38,9 +38,8 @@ public class LabelItem extends RoundedComposite {
 		label.setBackground(color);
 		if (removeListener != null) {
 			if (separator) {
-				Separator sep = new Separator(this, false, Separator.Style.SIMPLE_LINE, 2);
+				Separator sep = new Separator(this, false, new Separator.SimpleLine(color2), 2);
 				sep.setBackground(color);
-				sep.setForeground(color2);
 				sep.setLayoutData(UIUtil.gridDataVert(1, true));
 			}
 			SimpleCrossButton button = new SimpleCrossButton(this, new ButtonStyle().border_normal(BorderStyle.NONE).border_push(BorderStyle.NONE).border_hover(BorderStyle.NONE).hover(HoverStyle.BOLD), 2);

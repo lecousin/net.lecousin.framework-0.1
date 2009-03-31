@@ -8,7 +8,6 @@ import net.lecousin.framework.media.Media;
 import net.lecousin.framework.media.MediaPlayer;
 import net.lecousin.framework.media.MediaPlayerListener;
 import net.lecousin.framework.media.internal.EclipsePlugin;
-import net.lecousin.framework.strings.StringUtil;
 import net.lecousin.framework.thread.RunnableWithData;
 import net.lecousin.framework.time.DateTimeUtil;
 import net.lecousin.framework.ui.eclipse.EclipseImages;
@@ -46,6 +45,9 @@ public class PlayerControls extends Composite {
 			public void fire(Double event) {
 				if (changingVolume.get()) return;
 				player.setVolume(event);
+				double pos = player.getVolume();
+				if (player.getVolume() != event)
+					scaleVolume.setPosition(pos);
 			}
 		});
 		
@@ -76,7 +78,7 @@ public class PlayerControls extends Composite {
 		forwardButton.setHoverImage(EclipseImages.getImage(EclipsePlugin.ID, "images/player/forward_h.gif"));
 		forwardButton.addClickListener(new Forward());
 		*/
-		scaleTimeControl = new ScaleControl(this, scaleTime, null, true, new ScaleControl.LabelProvider() {
+		scaleTimeControl = new ScaleControl(this, scaleTime, true, new ScaleControl.LabelProvider() {
 			public String getLabel(double pos, double min, double max) {
 				return DateTimeUtil.getTimeString((long)pos, true, true, true, false) + '/' + DateTimeUtil.getTimeString((long)max, true, true, true, false);
 			}
@@ -91,9 +93,9 @@ public class PlayerControls extends Composite {
 		soundButton.setImage(EclipseImages.getImage(EclipsePlugin.ID, "images/player/sound.gif"));
 		soundButton.setHoverImage(EclipseImages.getImage(EclipsePlugin.ID, "images/player/sound_h.gif"));
 		soundButton.addClickListener(new Sound());
-		scaleVolumeControl = new ScaleControl(this, scaleVolume, null, true, new ScaleControl.LabelProvider() {
+		scaleVolumeControl = new ScaleControl(this, scaleVolume, true, new ScaleControl.LabelProvider() {
 			public String getLabel(double pos, double min, double max) {
-				return StringUtil.toStringSep(pos, 2) + '%';
+				return Integer.toString((int)pos) + '%';
 			}
 		});
 		gd = new GridData();
@@ -203,9 +205,10 @@ public class PlayerControls extends Composite {
 		public void mediaRemoved(Media media) {
 		}
 		public void mediaStarted(Media media) {
-			if (playPauseButton.isDisposed()) return;
+			if (playPauseButton.isDisposed() || playPauseButton.getDisplay().isDisposed()) return;
 			playPauseButton.getDisplay().asyncExec(new RunnableWithData<Media>(media) {
 				public void run() {
+					if (playPauseButton.isDisposed()) return;
 					scaleTime.setMaximum((double)data().getDuration());
 					synchronized (changingTime) { changingTime.set(true); }
 					scaleTime.setPosition((double)player.getTime());
@@ -217,9 +220,10 @@ public class PlayerControls extends Composite {
 			});
 		}
 		public void mediaPaused(Media currentMedia) {
-			if (playPauseButton.isDisposed()) return;
+			if (playPauseButton.isDisposed() || playPauseButton.getDisplay().isDisposed()) return;
 			playPauseButton.getDisplay().asyncExec(new Runnable() {
 				public void run() {
+					if (playPauseButton.isDisposed()) return;
 					playPauseButton.setImage(EclipseImages.getImage(EclipsePlugin.ID, "images/player/play.gif"));
 					playPauseButton.setHoverImage(EclipseImages.getImage(EclipsePlugin.ID, "images/player/play_h.gif"));
 					playPauseButton.redraw();
@@ -227,7 +231,7 @@ public class PlayerControls extends Composite {
 			});
 		}
 		public void mediaEnded(Media media) {
-			if (playPauseButton.isDisposed()) return;
+			if (playPauseButton.isDisposed() || playPauseButton.getDisplay().isDisposed()) return;
 			playPauseButton.getDisplay().asyncExec(new Runnable() {
 				public void run() {
 					if (playPauseButton.isDisposed()) return;
@@ -241,9 +245,10 @@ public class PlayerControls extends Composite {
 			});
 		}
 		public void stopped(Media lastMediaPlayed) {
-			if (playPauseButton.isDisposed()) return;
+			if (playPauseButton.isDisposed() || playPauseButton.getDisplay().isDisposed()) return;
 			playPauseButton.getDisplay().asyncExec(new Runnable() {
 				public void run() {
+					if (playPauseButton.isDisposed()) return;
 					scaleTime.setPosition((double)0);
 					playPauseButton.setImage(EclipseImages.getImage(EclipsePlugin.ID, "images/player/play.gif"));
 					playPauseButton.setHoverImage(EclipseImages.getImage(EclipsePlugin.ID, "images/player/play_h.gif"));
@@ -255,9 +260,10 @@ public class PlayerControls extends Composite {
 		}
 		public void mediaTimeChanged(Media media, long time) {
 			if (scaleTimeControl.isEditingPosition()) return;
-			if (playPauseButton.isDisposed()) return;
+			if (playPauseButton.isDisposed() || playPauseButton.getDisplay().isDisposed()) return;
 			playPauseButton.getDisplay().asyncExec(new RunnableWithData<Pair<Media,Long>>(new Pair<Media,Long>(media,time)) {
 				public void run() {
+					if (playPauseButton.isDisposed()) return;
 					synchronized (changingTime) { changingTime.set(true); }
 					if (scaleTime.getMaximum() <= 0)
 						scaleTime.setMaximum((double)data().getValue1().getDuration());
@@ -268,12 +274,28 @@ public class PlayerControls extends Composite {
 		}
 		public void volumeChanged(double volume) {
 			if (scaleVolumeControl.isEditingPosition()) return;
-			if (playPauseButton.isDisposed()) return;
+			if (playPauseButton.isDisposed() || playPauseButton.getDisplay().isDisposed()) return;
 			playPauseButton.getDisplay().asyncExec(new RunnableWithData<Double>(volume) {
 				public void run() {
+					if (playPauseButton.isDisposed()) return;
 					synchronized (changingVolume) { changingVolume.set(true); }
 					scaleVolume.setPosition(data());
 					synchronized (changingVolume) { changingVolume.set(false); }
+				}
+			});
+		}
+		public void muteChanged(boolean mute) {
+			if (playPauseButton.isDisposed() || playPauseButton.getDisplay().isDisposed()) return;
+			playPauseButton.getDisplay().asyncExec(new RunnableWithData<Boolean>(mute) {
+				public void run() {
+					if (playPauseButton.isDisposed()) return;
+					if (data()) {
+						soundButton.setImage(EclipseImages.getImage(EclipsePlugin.ID, "images/player/sound_off.gif"));
+						soundButton.setHoverImage(EclipseImages.getImage(EclipsePlugin.ID, "images/player/sound_off_h.gif"));
+					} else {
+						soundButton.setImage(EclipseImages.getImage(EclipsePlugin.ID, "images/player/sound.gif"));
+						soundButton.setHoverImage(EclipseImages.getImage(EclipsePlugin.ID, "images/player/sound_h.gif"));
+					}
 				}
 			});
 		}

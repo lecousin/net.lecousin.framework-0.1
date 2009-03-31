@@ -21,8 +21,21 @@ public class ZipUtil {
 		while (en.hasMoreElements()) {
 			ZipEntry entry = en.nextElement();
 			String name = entry.getName();
-			File target = new File(targetDir, name);
-			if (target.isDirectory()) {
+			File target = targetDir;
+			int i = 0;
+			int j, k;
+			do {
+				j = name.indexOf('/', i);
+				k = name.indexOf('\\', i);
+				if (k > 0 && k < j) j = k;
+				if (j > 0) {
+					target = new File(target, name.substring(i, j));
+					i = j+1;
+				}
+			} while (j > 0);
+			if (i < name.length())
+				target = new File(target, name.substring(i));
+			if (entry.isDirectory()) {
 				target.mkdirs();
 				continue;
 			} else

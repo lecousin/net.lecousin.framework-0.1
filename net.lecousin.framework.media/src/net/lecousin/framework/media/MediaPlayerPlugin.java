@@ -37,5 +37,7 @@ public interface MediaPlayerPlugin {
 	public Event<Media> stopped();
 	public Event<Media> positionChanged();
 	public Event<Pair<Media,Long>> timeChanged();
+	public Event<Double> volumeChanged();
+	public Event<Boolean> muteChanged();
 	
 }

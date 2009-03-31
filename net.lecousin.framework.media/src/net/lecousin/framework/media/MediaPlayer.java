@@ -64,6 +64,18 @@ public class MediaPlayer {
 					listener.mediaTimeChanged(event.getValue1(), event.getValue2());
 			}
 		});
+		plugin.volumeChanged().addListener(new Listener<Double>() {
+			public void fire(Double event) {
+				for (MediaPlayerListener listener : listeners)
+					listener.volumeChanged(event);
+			}
+		});
+		plugin.muteChanged().addListener(new Listener<Boolean>() {
+			public void fire(Boolean event) {
+				for (MediaPlayerListener listener : listeners)
+					listener.muteChanged(event);
+			}
+		});
 	}
 	
 	private MediaPlayerPlugin plugin;

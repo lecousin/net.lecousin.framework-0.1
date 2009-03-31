@@ -19,6 +19,8 @@ public class ChunkedTransfer extends Transfer {
 	public void read(OutputStream out, WorkProgress progress, int amount) throws IOException {
 		int total = amount;
 		int nb = 50;
+		long start = System.currentTimeMillis();
+		long read = 0;
 		do {
 			long size = readSize();
 			if (Log.debug(this))
@@ -26,10 +28,13 @@ public class ChunkedTransfer extends Transfer {
 			if (size == -1) break;
 			if (size == 0) break;
 			read(size, out, null, 0);
+			read += size;
 			if (nb > 0 && progress != null) {
 				int step = total/nb--;
 				total -= step;
 				progress.progress(step);
+				long now = System.currentTimeMillis();
+				progress.setSubDescription(StringUtil.sizeString(read/((now-start)/1000))+"/s");
 			}
 		} while (true);
 		if (total > 0 && progress != null)

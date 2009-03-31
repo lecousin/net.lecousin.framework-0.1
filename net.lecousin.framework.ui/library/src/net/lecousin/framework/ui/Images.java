@@ -92,6 +92,7 @@ public interface Images {
 				public static final String EXPORT = _path+"export.gif";
 				public static final String VALIDATE = _path+"validate.gif";
 				public static final String VERSION = _path+"version.gif";
+				public static final String CONFIGURATION = _path+"configuration.gif";
 
 				public static final String ERROR = _path+"error.gif";
 				public static final String WARNING = _path+"warning.gif";
@@ -103,6 +104,15 @@ public interface Images {
 				
 				public static final String INTERNET = _path+"internet.gif";
 				public static final String MAIL = _path+"mail.gif";
+				public static final String CONNECTED_GREEN_GREEN = _path+"connected_green_green.gif";
+				public static final String CONNECTED_GREEN_YELLOW = _path+"connected_green_yellow.gif";
+				public static final String CONNECTED_GREEN_RED = _path+"connected_green_red.gif";
+				public static final String CONNECTED_YELLOW_GREEN = _path+"connected_yellow_green.gif";
+				public static final String CONNECTED_YELLOW_YELLOW = _path+"connected_yellow_yellow.gif";
+				public static final String CONNECTED_YELLOW_RED = _path+"connected_yellow_red.gif";
+				public static final String CONNECTED_RED_GREEN = _path+"connected_red_green.gif";
+				public static final String CONNECTED_RED_YELLOW = _path+"connected_red_yellow.gif";
+				public static final String CONNECTED_RED_RED = _path+"connected_red_red.gif";
 
 				public static final String PROCESSING = _path+"processing.gif";
 				public static final String WAIT_CLOCK = _path+"wait_clock.gif";

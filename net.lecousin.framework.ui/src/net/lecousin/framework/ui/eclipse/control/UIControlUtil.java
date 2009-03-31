@@ -5,6 +5,7 @@ import net.lecousin.framework.ui.eclipse.event.ListenerWithData;
 import net.lecousin.framework.ui.eclipse.graphics.ColorUtil;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
@@ -99,6 +100,12 @@ public abstract class UIControlUtil {
     	if (c instanceof Composite)
     		for (Control child : ((Composite)c).getChildren())
     			recursiveKeyListener(child, listener);
+    }
+    public static void recursiveFocusListener(Control c, FocusListener listener) {
+   		c.addFocusListener(listener);
+    	if (c instanceof Composite)
+    		for (Control child : ((Composite)c).getChildren())
+    			recursiveFocusListener(child, listener);
     }
     
     public static void traverseEvent(Control c, int event, boolean includeChildren) {

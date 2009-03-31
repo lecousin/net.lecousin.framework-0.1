@@ -10,9 +10,9 @@ import net.lecousin.framework.io.LCPartialBufferedInputStream;
 public class AVIFile extends VideoFile {
 
 	public static AVIFile detect(URI uri, LCPartialBufferedInputStream stream) {
-		AVIFormat cda = AVIFormat.read(stream);
-		if (cda == null) return null;
-		return new AVIFile(uri, cda);
+		AVIFormat avi = AVIFormat.read(stream);
+		if (avi == null) return null;
+		return new AVIFile(uri, avi);
 	}
 	
 	private AVIFile(URI uri, AVIFormat info) {

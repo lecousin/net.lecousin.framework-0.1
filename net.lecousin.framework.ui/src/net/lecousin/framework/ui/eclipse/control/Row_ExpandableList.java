@@ -20,7 +20,7 @@ public class Row_ExpandableList extends Composite {
 		super(parent, SWT.NONE);
 		setBackground(parent.getBackground());
 		RowLayout layout = new RowLayout(SWT.HORIZONTAL);
-		layout.marginHeight = layout.marginWidth = 0;
+		layout.marginHeight = layout.marginWidth = layout.marginBottom = layout.marginTop = 0;
 		layout.wrap = false;
 		layout.spacing = spacing;
 		setLayout(layout);

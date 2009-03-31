@@ -140,6 +140,8 @@ public class MediaPlayerControl {
 		}
 		public void volumeChanged(double volume) {
 		}
+		public void muteChanged(boolean mute) {
+		}
 	}
 	
 	/*
