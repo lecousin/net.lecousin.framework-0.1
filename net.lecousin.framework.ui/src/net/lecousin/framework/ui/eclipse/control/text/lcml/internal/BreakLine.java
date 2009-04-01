@@ -15,4 +15,7 @@ public class BreakLine extends Section {
 		}
 	}
 	
+	@Override
+	void free() {
+	}
 }

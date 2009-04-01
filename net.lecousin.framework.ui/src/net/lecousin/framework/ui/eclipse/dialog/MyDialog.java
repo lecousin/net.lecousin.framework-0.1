@@ -56,7 +56,7 @@ public abstract class MyDialog extends Dialog {
 	public static Shell getPlatformShell() {
 		IWorkbench workbench = PlatformUI.isWorkbenchRunning() ? PlatformUI.getWorkbench() : null;
 		IWorkbenchWindow window = workbench != null ? workbench.getActiveWorkbenchWindow() : null;
-		Shell shell = window.getShell();
+		Shell shell = window != null ? window.getShell() : null;
 		if (shell != null) return shell;
 		Display display;
 		if (PlatformUI.isWorkbenchRunning())

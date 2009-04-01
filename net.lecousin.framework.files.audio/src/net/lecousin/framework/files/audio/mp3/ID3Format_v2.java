@@ -68,19 +68,19 @@ public class ID3Format_v2 extends ID3Format {
 		in.read(frameBody);
 		String type = new String(frameHeader, 0, 3);
 		if (type.equals("TT2"))
-			song_title = readText(frameBody);
+			song_title = readText(frameBody).trim();
 		else if (type.equals("TAL"))
-			album = readText(frameBody);
+			album = readText(frameBody).trim();
 		else if (type.equals("TP1"))
-			artist = readText(frameBody);
+			artist = readText(frameBody).trim();
 		else if (type.equals("TYE"))
-			year = toInt(readText(frameBody));
+			year = toInt(readText(frameBody).trim());
 		else if (type.equals("TCO"))
-			genre = getGenre(readText(frameBody));
+			genre = getGenre(readText(frameBody).trim());
 		else if (type.equals("COM"))
-			comment = readText(frameBody);
+			comment = readText(frameBody).trim();
 		else if (type.equals("TRK")) {
-			String s = readText(frameBody);
+			String s = readText(frameBody).trim();
 			int i = s.indexOf('/');
 			if (i < 0)
 				track_number = toInt(s);
@@ -89,7 +89,7 @@ public class ID3Format_v2 extends ID3Format {
 				number_of_tracks_in_album = toInt(s.substring(i+1));
 			}
 		} else if (type.equals("TLE"))
-			setDuration(toLong(readText(frameBody)));
+			setDuration(toLong(readText(frameBody).trim()));
 		else if (type.equals("TMT")) { /* media type, skip */ }
 		else if (type.equals("TFT")) { /* file type, skip */ }
 		else if (type.equals("TXX")) { /* user defined text, skip */ }
@@ -120,20 +120,78 @@ public class ID3Format_v2 extends ID3Format {
 		in.read(frameBody);
 		// TODO encoding... with flags
 		String type = new String(frameHeader, 0, 4);
-		if (type.equals("TIT2"))
-			song_title = readText(frameBody);
-		else if (type.equals("TALB"))
-			album = readText(frameBody);
-		else if (type.equals("TPE1"))
-			artist = readText(frameBody);
-		else if (type.equals("TYER"))
-			year = toInt(readText(frameBody));
-		else if (type.equals("TCON"))
-			genre = getGenre(readText(frameBody));
+		if (type.equals("AENC")) { /* AENC Audio encryption, skip */ }
+		else if (type.equals("APIC"))
+			loadPicture(frameBody, 2);
+		else if (type.equals("ASPI")) { /* ASPI Audio seek point index, skip */ }
 		else if (type.equals("COMM"))
-			comment = readText(frameBody);
+			comment = readText(frameBody).trim();
+		else if (type.equals("COMR")) { /* COMR Commercial frame, skip */ }
+		else if (type.equals("ENCR")) { /* ENCR Encryption method registration, skip */ }
+		else if (type.equals("EQU2")) { /* EQU2 Equalisation (2), skip */ }
+		else if (type.equals("ETCO")) { /* ETCO Event timing codes, skip */ }
+		else if (type.equals("GEOB")) { /* encapsulated object, skip */ }
+		else if (type.equals("GRID")) { /* GRID Group identification registration, skip */ }
+		else if (type.equals("LINK")) { /* LINK Linked information, skip */ }
+		else if (type.equals("MCDI"))
+			mcdi = frameBody;
+		else if (type.equals("MLLT")) { /* MLLT MPEG location lookup table, skip */ }
+		else if (type.equals("OWNE")) { /* OWNE Ownership frame, skip */ }
+		else if (type.equals("PCNT")) { /* PCNT Play counter, skip */ }
+		else if (type.equals("POPM")) { /* popularimeter, skip */ }
+		else if (type.equals("POSS")) { /* POSS Position synchronisation frame, skip */ }
+		else if (type.equals("PRIV")) { /* skip */ }
+		else if (type.equals("RBUF")) { /* RBUF Recommended buffer size, skip */ }
+		else if (type.equals("RVA2")) { /* RVA2 Relative volume adjustment (2), skip */ }
+		else if (type.equals("RVRB")) { /* RVRB Reverb, skip */ }
+		else if (type.equals("SEEK")) { /* SEEK Seek frame, skip */ }
+		else if (type.equals("SIGN")) { /* SIGN Signature frame, skip */ }
+		else if (type.equals("SYLT")) { if (Log.info(this)) Log.info("ID3: SYLT tag found");/* SYLT Synchronised lyric/text, skip */ }
+		else if (type.equals("SYTC")) { if (Log.info(this)) Log.info("ID3: SYTC tag found");/* SYTC Synchronised tempo codes, skip */ }
+		else if (type.equals("TALB"))
+			album = readText(frameBody).trim();
+		else if (type.equals("TBPM")) { /* TBPM BPM (beats per minute), skip */ }
+		else if (type.equals("TCON"))
+			genre = getGenre(readText(frameBody).trim());
+		else if (type.equals("TCOM"))
+			composer = readText(frameBody).trim();
+		else if (type.equals("TCOP")) { /* copyright, skip */ }
+		else if (type.equals("TDEN")) { /* TDEN Encoding time, skip */ }
+		else if (type.equals("TDLY")) { /* TDLY Playlist delay, skip */ }
+		else if (type.equals("TDOR")) { /* TDOR Original release time, skip */ }
+		else if (type.equals("TDRC")) { /* TDRC Recording time, skip */ }
+		else if (type.equals("TDRL")) { /* TDRL Release time, skip */ }
+		else if (type.equals("TDTG")) { /* TDTG Tagging time, skip */ }
+		else if (type.equals("TENC")) { /* encoded by, skip */ }
+		else if (type.equals("TEXT")) { if (Log.info(this)) Log.info("ID3: TEXT tag found");/* TEXT Lyricist/Text writer, skip */ }
+		else if (type.equals("TFLT")) { /* file type, skip */ }
+		else if (type.equals("TIPL")) { if (Log.info(this)) Log.info("ID3: TIPL tag found");/* TIPL Involved people list, skip */ }
+		else if (type.equals("TIT1")) { if (Log.info(this)) Log.info("ID3: TIT1 tag found");/* skip */ }
+		else if (type.equals("TIT2"))
+			song_title = readText(frameBody).trim();
+		else if (type.equals("TIT3")) { if (Log.info(this)) Log.info("ID3: TIT3 tag found");/* skip */ }
+		else if (type.equals("TKEY")) { /* TKEY Initial key, skip */ }
+		else if (type.equals("TLAN")) { /* TLAN Language(s), skip */ }
+		else if (type.equals("TLEN"))
+			setDuration(toLong(readText(frameBody).trim()));
+		else if (type.equals("TMCL")) { /* TMCL Musician credits list, skip */ }
+		else if (type.equals("TMED")) { /* media type, skip */ }
+		else if (type.equals("TMOO")) { /* TMOO Mood, skip */ }
+		else if (type.equals("TOAL")) { /* TOAL Original album/movie/show title, skip */ }
+		else if (type.equals("TOFN")) { /* TOFN Original filename, skip */ }
+		else if (type.equals("TOLY")) { /* TOLY Original lyricist(s)/text writer(s), skip */ }
+		else if (type.equals("TOPE")) { /* original artist, skip */ }
+		else if (type.equals("TOWN")) { /* TOWN File owner/licensee, skip */ }
+		else if (type.equals("TPE1"))
+			artist = readText(frameBody).trim();
+		else if (type.equals("TPE2")) { if (Log.info(this)) Log.info("ID3: TPE2 tag found");/* skip */ }
+		else if (type.equals("TPE3")) { if (Log.info(this)) Log.info("ID3: TPE3 tag found");/* skip */ }
+		else if (type.equals("TPE4")) { if (Log.info(this)) Log.info("ID3: TPE4 tag found");/* skip */ }
+		else if (type.equals("TPOS")) { /* TPOS Part of a set, skip */ }
+		else if (type.equals("TPRO")) { /* TPRO Produced notice, skip */ }
+		else if (type.equals("TPUB")) { /* TPUB Publisher, skip */ }
 		else if (type.equals("TRCK")) {
-			String s = readText(frameBody);
+			String s = readText(frameBody).trim();
 			int i = s.indexOf('/');
 			if (i < 0)
 				track_number = toInt(s);
@@ -141,29 +199,41 @@ public class ID3Format_v2 extends ID3Format {
 				track_number = toInt(s.substring(0, i));
 				number_of_tracks_in_album = toInt(s.substring(i+1));
 			}
-		} else if (type.equals("TLEN"))
-			setDuration(toLong(readText(frameBody)));
-		else if (type.equals("TMED")) { /* media type, skip */ }
-		else if (type.equals("TFLT")) { /* file type, skip */ }
+		} 
+		else if (type.equals("TRSN")) { /* TRSN Internet radio station name, skip */ }
+		else if (type.equals("TRSO")) { /* TRSO Internet radio station owner, skip */ }
+		else if (type.equals("TSOA")) { /* TSOA Album sort order, skip */ }
+		else if (type.equals("TSOP")) { /* TSOP Performer sort order, skip */ }
+		else if (type.equals("TSOT")) { /* TSOT Title sort order, skip */ }
+		else if (type.equals("TSRC")) { /* TSRC ISRC (international standard recording code), skip */ }
+		else if (type.equals("TSSE")) { /* TSSE Software/Hardware and settings used for encoding, skip */ }
+		else if (type.equals("TSST")) { /* TSST Set subtitle, skip */ }
+		else if (type.equals("TYER"))
+			year = toInt(readText(frameBody).trim());
 		else if (type.equals("TXXX")) { /* user defined text, skip */ }
-		else if (type.equals("TENC")) { /* encoded by, skip */ }
-		else if (type.equals("TCOP")) { /* copyright, skip */ }
-		else if (type.equals("MCDI"))
-			mcdi = frameBody;
-		else if (type.equals("PRIV")) { /* skip */ }
-		else if (type.equals("GEOB")) { /* encapsulated object, skip */ }
+		else if (type.equals("UFID")) { /* UFID Unique file identifier, skip */ }
+		else if (type.equals("USER")) { /* USER Terms of use, skip */ }
+		else if (type.equals("USLT")) { if (Log.info(this)) Log.info("ID3: USLT tag found");/* skip */ }
+		else if (type.equals("WOAR"))
+			officialArtistWebPage = readText(frameBody).trim();
+		else if (type.equals("WOAF"))
+			officialAudioFileWebPage = readText(frameBody).trim();
+		else if (type.equals("WOAS")) { /* WOAS Official audio source webpage, skip */ }
+		else if (type.equals("WORS")) { /* WORS Official Internet radio station homepage, skip */ }
+		else if (type.equals("WPAY")) { /* WPAY Payment, skip */ }
+		else if (type.equals("WPUB")) { /* WPUB Publishers official webpage, skip */ }
 		else if (type.equals("WXXX")) { /* user defined link url, skip */ }
-		else if (type.equals("APIC"))
-			loadPicture(frameBody, 2);
 		else if (type.charAt(0) == 'X' || type.charAt(0) == 'Y' || type.charAt(0) == 'Z')
 		{ /* skip user defined/proprietary tags */ }
 		else if (Log.warning(this))
 			Log.warning(this, "ID3: frame ID (v3-4) not supported: " + type);
 
 		return frameSize + 10;
+
 	}
 	
 	private String readText(byte[] body) {
+		if (body.length == 0) return "";
 		if (body[0] == 0x00) {
 			int len = body.length-1;
 			while (len > 0 && body[len] == 0x00) len--;
@@ -236,6 +306,9 @@ public class ID3Format_v2 extends ID3Format {
 	private int number_of_tracks_in_album = -1;
 	private int year = -1;
 	private String genre;
+	private String composer = null;
+	private String officialAudioFileWebPage = null;
+	private String officialArtistWebPage = null;
 	private byte[] mcdi = null;
 	private List<Picture> pictures = new LinkedList<Picture>();
 	

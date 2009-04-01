@@ -2,6 +2,8 @@ package net.lecousin.framework.ui.eclipse.control.button;
 
 import net.lecousin.framework.ui.eclipse.control.UIControlUtil;
 
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseTrackListener;
@@ -17,6 +19,13 @@ public class ButtonStyleApply implements PaintListener, MouseListener, MouseTrac
 		control.addPaintListener(this);
 		UIControlUtil.recursiveMouseListener(control, this, true);
 		UIControlUtil.recursiveMouseTrackListener(control, this, true);
+		control.addDisposeListener(new DisposeListener() {
+			public void widgetDisposed(DisposeEvent e) {
+				ButtonStyleApply.this.control.removeDisposeListener(this);
+				ButtonStyleApply.this.control = null;
+				ButtonStyleApply.this.style = null;
+			}
+		});
 	}
 	
 	private Control control;

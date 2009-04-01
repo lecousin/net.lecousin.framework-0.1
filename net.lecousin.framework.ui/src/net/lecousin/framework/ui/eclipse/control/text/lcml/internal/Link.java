@@ -1,6 +1,7 @@
 package net.lecousin.framework.ui.eclipse.control.text.lcml.internal;
 
 import net.lecousin.framework.event.Event;
+import net.lecousin.framework.ui.eclipse.UIUtil;
 import net.lecousin.framework.ui.eclipse.graphics.ColorUtil;
 import net.lecousin.framework.ui.eclipse.graphics.CursorUtil;
 
@@ -40,7 +41,7 @@ public class Link extends TextSection {
 	}
 	@Override
 	public Font getFont(Composite parent) {
-		return parent.getFont();
+		return UIUtil.copyFont(parent.getFont());
 	}
 	@Override
 	public void configureLabel(Label label) {

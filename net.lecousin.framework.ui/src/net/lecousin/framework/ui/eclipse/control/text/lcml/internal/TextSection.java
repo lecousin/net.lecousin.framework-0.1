@@ -24,6 +24,14 @@ public abstract class TextSection extends Section {
 	
 	private List<Label> labels = new LinkedList<Label>();
 	
+	@Override
+	void free() {
+		for (Label l : labels)
+			l.getFont().dispose();
+		labels.clear();
+		labels = null;
+	}
+	
 	private void refreshLabels(Composite parent, Font font, List<Pair<String,Rectangle>> expectedLabels) {
 		int i;
 		for (i = 0; i < expectedLabels.size(); ++i) {
@@ -39,13 +47,15 @@ public abstract class TextSection extends Section {
 			} else {
 				Label label = UIUtil.newLabel(parent, p.getValue1());
 				label.setBounds(p.getValue2());
-				label.setFont(font);
+				label.setFont(UIUtil.copyFont(font));
 				configureLabel(label);
 				labels.add(label);
 			}
 		}
 		for (; i < labels.size(); ++i) {
-			labels.remove(i).dispose();
+			Label l = labels.remove(i);
+			l.getFont().dispose();
+			l.dispose();
 		}
 	}
 	
@@ -100,6 +110,8 @@ public abstract class TextSection extends Section {
 		} while (true);
 		if (updateControls)
 			refreshLabels(parent, font, expectedLabels);
+		font.dispose();
+		gc.dispose();
 	}
 
 	private Pair<Integer,Point> getMaxLength(String text, GC gc, int width, boolean startingLine) {

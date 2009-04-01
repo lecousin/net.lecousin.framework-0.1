@@ -13,6 +13,8 @@ import net.lecousin.framework.ui.eclipse.control.list.LCTable.LCTableProvider;
 import net.lecousin.framework.ui.eclipse.control.list.LCTable.LCTableProvider_SingleColumnText;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 
@@ -23,7 +25,7 @@ public class LCTableWithControls<T> extends Composite {
 		super(parent, SWT.NONE);
 		this.provider = provider;
 		setBackground(parent.getBackground());
-		UIUtil.gridLayout(this, 2);
+		UIUtil.gridLayout(this, 2, 0, 0, 1, 0);
 		if (title != null) {
 			if (left) UIUtil.newLabel(this, "");
 			UIUtil.newLabel(this, title);
@@ -34,6 +36,17 @@ public class LCTableWithControls<T> extends Composite {
 		if (!left) createControls(orderable, removable, addable);
 		detailsPanel = UIUtil.newComposite(this);
 		UIUtil.gridDataHorizFill(detailsPanel).exclude = true;
+		addDisposeListener(new DisposeListener() {
+			public void widgetDisposed(DisposeEvent e) {
+				table = null;
+				detailsPanel = null;
+				buttonUp = buttonDown = buttonRemove = buttonAdd = null;
+				LCTableWithControls.this.provider = null;
+				removeRequested.free(); removeRequested = null;
+				addRequested.free(); addRequested = null;
+				moved.free(); moved = null;
+			}
+		});
 	}
 	
 	private LCTable<T> table;

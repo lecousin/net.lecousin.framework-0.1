@@ -48,8 +48,8 @@ public class WorkProgress {
 		long totalAmount = 0;
 		long totalWork = 0;
 		for (Pair<WorkProgress,Integer> p : subWorks) {
-			totalPos += (long)p.getValue1().getPosition()*p.getValue2();
-			totalAmount += (long)p.getValue1().getAmount()*p.getValue2();
+			totalPos += ((long)p.getValue1().getPosition())*(long)p.getValue2();
+			totalAmount += ((long)p.getValue1().getAmount())*(long)p.getValue2();
 			totalWork += p.getValue2();
 		}		
 		int pos = totalAmount > 0 ? (int)(totalPos*totalWork/totalAmount) : 0;

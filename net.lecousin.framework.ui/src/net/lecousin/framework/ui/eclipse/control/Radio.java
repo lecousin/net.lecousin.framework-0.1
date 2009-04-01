@@ -9,6 +9,8 @@ import net.lecousin.framework.event.Event;
 import net.lecousin.framework.ui.eclipse.UIUtil;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.MouseEvent;
@@ -29,6 +31,14 @@ public class Radio extends Composite {
 		setBackground(parent.getBackground());
 		horizontal = horiz;
 		UIUtil.gridLayout(this, 1);
+		addDisposeListener(new DisposeListener() {
+			public void widgetDisposed(DisposeEvent e) {
+				selectionEvent.free();
+				selectionEvent = null;
+				optionControls.clear();
+				optionControls = null;
+			}
+		});
 	}
 	
 	private boolean horizontal;

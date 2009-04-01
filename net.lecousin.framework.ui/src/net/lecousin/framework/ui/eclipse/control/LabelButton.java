@@ -3,6 +3,8 @@ package net.lecousin.framework.ui.eclipse.control;
 import net.lecousin.framework.event.Event;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseTrackListener;
@@ -28,6 +30,12 @@ public class LabelButton extends Label implements MouseListener, PaintListener, 
         addPaintListener(this);
         
         setAlignment(SWT.CENTER);
+        
+        addDisposeListener(new DisposeListener() {
+        	public void widgetDisposed(DisposeEvent e) {
+        		clickEvent.free(); clickEvent = null;
+        	}
+        });
     }
 
     @Override

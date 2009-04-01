@@ -10,17 +10,17 @@ public class ID3Format_v1 extends ID3Format {
 		str = new StringBuilder();
 		for (int i = 0; i < 30 && buffer[pos+3+i] != 0; ++i)
 			str.append((char)buffer[pos+3+i]);
-		song_title = str.toString();
+		song_title = str.toString().trim();
 
 		str = new StringBuilder();
 		for (int i = 0; i < 30 && buffer[pos+33+i] != 0; ++i)
 			str.append((char)buffer[pos+33+i]);
-		artist = str.toString();
+		artist = str.toString().trim();
 
 		str = new StringBuilder();
 		for (int i = 0; i < 30 && buffer[pos+63+i] != 0; ++i)
 			str.append((char)buffer[pos+63+i]);
-		album = str.toString();
+		album = str.toString().trim();
 
 		str = new StringBuilder();
 		for (int i = 0; i < 4 && buffer[pos+93+i] != 0; ++i)
@@ -33,7 +33,7 @@ public class ID3Format_v1 extends ID3Format {
 		str = new StringBuilder();
 		for (int i = 0; i < 30 && buffer[pos+97+i] != 0; ++i)
 			str.append((char)buffer[pos+97+i]);
-		comment = str.toString();
+		comment = str.toString().trim();
 		
 		genre = getGenre(buffer[pos+127]);
 		

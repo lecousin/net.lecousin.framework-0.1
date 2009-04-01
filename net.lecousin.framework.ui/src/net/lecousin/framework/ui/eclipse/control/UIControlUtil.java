@@ -1,10 +1,13 @@
 package net.lecousin.framework.ui.eclipse.control;
 
 import net.lecousin.framework.ui.eclipse.UIUtil;
+import net.lecousin.framework.ui.eclipse.event.DisposeListenerWithData;
 import net.lecousin.framework.ui.eclipse.event.ListenerWithData;
 import net.lecousin.framework.ui.eclipse.graphics.ColorUtil;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseEvent;
@@ -13,6 +16,7 @@ import org.eclipse.swt.events.MouseTrackListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
@@ -66,11 +70,23 @@ public abstract class UIControlUtil {
     }
     
     public static void increaseFontSize(Control ctrl, int inc) {
-    	ctrl.setFont(UIUtil.increaseFontSize(ctrl.getFont(), inc));
+    	Font font = UIUtil.increaseFontSize(ctrl.getFont(), inc);
+    	ctrl.setFont(font);
+    	ctrl.addDisposeListener(new DisposeListenerWithData<Font>(font) {
+    		public void widgetDisposed(DisposeEvent e) {
+    			data().dispose();
+    		}
+    	});
     }
     
     public static void setFontStyle(Control ctrl, int style) {
-    	ctrl.setFont(UIUtil.setFontStyle(ctrl.getFont(), style));
+    	Font font = UIUtil.setFontStyle(ctrl.getFont(), style);
+    	ctrl.setFont(font);
+    	ctrl.addDisposeListener(new DisposeListenerWithData<Font>(font) {
+    		public void widgetDisposed(DisposeEvent e) {
+    			data().dispose();
+    		}
+    	});
     }
     
     public static void recursiveMouseListener(Control c, MouseListener listener, boolean includeListened) {
@@ -182,6 +198,14 @@ public abstract class UIControlUtil {
     	SelectableMouseTrackListener(Control root) {
     		this.root = root;
     		initialBg = root.getBackground();
+    		root.addDisposeListener(new DisposeListener() {
+    			public void widgetDisposed(DisposeEvent e) {
+    				SelectableMouseTrackListener.this.root = null;
+    				border = null;
+    				painter = null;
+    				initialBg = null;
+    			}
+    		});
     	}
     	private Control root;
     	private Color initialBg;

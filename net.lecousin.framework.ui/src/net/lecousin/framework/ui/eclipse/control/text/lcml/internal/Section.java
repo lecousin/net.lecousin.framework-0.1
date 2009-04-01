@@ -17,4 +17,5 @@ public abstract class Section {
 	
 	protected abstract void refreshSize(Composite parent, Position pos, int maxWidth, boolean updateControls);
 	
+	abstract void free();
 }

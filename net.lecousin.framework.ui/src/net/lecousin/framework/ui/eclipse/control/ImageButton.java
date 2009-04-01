@@ -4,6 +4,8 @@ import net.lecousin.framework.event.Event;
 import net.lecousin.framework.event.Event.Listener;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseTrackListener;
@@ -18,6 +20,13 @@ public class ImageButton extends Label {
 		Mouse mouse = new Mouse();
 		addMouseTrackListener(mouse);
 		addMouseListener(mouse);
+		addDisposeListener(new DisposeListener() {
+			public void widgetDisposed(DisposeEvent e) {
+				normalImage = null;
+				hoverImage = null;
+				click.free(); click = null;
+			}
+		});
 	}
 	
 	private Image normalImage, hoverImage;

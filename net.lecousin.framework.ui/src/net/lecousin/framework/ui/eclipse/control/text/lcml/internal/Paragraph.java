@@ -2,6 +2,8 @@ package net.lecousin.framework.ui.eclipse.control.text.lcml.internal;
 
 import net.lecousin.framework.ui.eclipse.UIUtil;
 
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 
@@ -21,6 +23,10 @@ public class Paragraph extends SectionContainer {
 		panel.dispose();
 		panel = null;
 	}
+	@Override
+	void free() {
+		removeControls();
+	}
 	
 	public Point refreshControls(Composite parent, int maxWidth) {
 		Position pos = new Position();
@@ -37,8 +43,15 @@ public class Paragraph extends SectionContainer {
 
 	@Override
 	protected void refreshSize(Composite parent, Position pos, int maxWidth, boolean updateControls) {
-		if (panel == null)
+		if (panel == null) {
 			panel = UIUtil.newComposite(parent);
+			panel.addDisposeListener(new DisposeListener() {
+				public void widgetDisposed(DisposeEvent e) {
+					panel = null;
+					freeSections();
+				}
+			});
+		}
 		pos.x = 0;
 		pos.y += pos.lineHeight;
 		pos.lineHeight = 0;

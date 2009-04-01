@@ -15,6 +15,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 public class EclipseImages {
 
 	private static Map<String,Map<String,Image>> images = null;
+	private static int total = 0;
 	
 	public static Image getImage(String pluginID, String path) {
 		Map<String,Image> map = null;
@@ -27,6 +28,11 @@ public class EclipseImages {
 			images.put(pluginID, map);
 		}
 		if (map.containsKey(path)) return map.get(path);
+		if (++total > 200) {
+			images = null;
+			total = 0;
+			return getImage(pluginID, path);
+		}
 		ImageDescriptor descr = AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, path);
 		Image img = null;
 		if (descr != null)

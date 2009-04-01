@@ -26,6 +26,13 @@ public class Event<T> {
     private LinkedList<Listener<T>> listeners = new LinkedList<Listener<T>>();
     private LinkedList<Runnable> fireListeners = new LinkedList<Runnable>();
     
+    public void free() {
+    	listeners.clear();
+    	listeners = null;
+    	fireListeners.clear();
+    	fireListeners = null;
+    }
+    
     public void addListener(Listener<T> listener) {
         if (!listeners.contains(listener))
             listeners.add(listener);

@@ -7,6 +7,8 @@ import net.lecousin.framework.ui.eclipse.control.button.ButtonStyleApply;
 import net.lecousin.framework.ui.eclipse.control.button.HoverStyle;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseTrackListener;
@@ -26,6 +28,17 @@ public class SimpleCrossButton extends Canvas implements PaintListener, MouseTra
 		addMouseListener(this);
 		addMouseTrackListener(this);
 		new ButtonStyleApply(this, buttonStyle);
+		addDisposeListener(new DisposeListener() {
+			public void widgetDisposed(DisposeEvent e) {
+				SimpleCrossButton.this.removeDisposeListener(this);
+				SimpleCrossButton.this.hover = null;
+				SimpleCrossButton.this.click.free();
+				SimpleCrossButton.this.click = null;
+				SimpleCrossButton.this.removePaintListener(SimpleCrossButton.this);
+				SimpleCrossButton.this.removeMouseListener(SimpleCrossButton.this);
+				SimpleCrossButton.this.removeMouseTrackListener(SimpleCrossButton.this);
+			}
+		});
 	}
 	
 	private HoverStyle hover;

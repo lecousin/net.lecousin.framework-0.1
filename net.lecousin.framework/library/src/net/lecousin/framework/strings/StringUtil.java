@@ -276,6 +276,9 @@ public class StringUtil
   public static boolean isDigit(char c) {
 	  return c >= '0' && c <= '9';
   }
+  public static boolean isSpace(char c) {
+	  return c == ' ' || c == '\t';
+  }
   public static char upper(char c) {
 	  if (c >= 'A' && c <= 'Z') return c;
 	  if (c >= 'a' && c <= 'z') return (char)(c + 'A' - 'a');
@@ -287,5 +290,25 @@ public class StringUtil
 	  if (c >= 'A' && c <= 'Z') return (char)(c + 'a' - 'A');
 	  if ((c&0xFF) >= 0xC0 && (c&0xFF) <= 0xDF) return (char)((c&0xFF)+0x20);
 	  return c;
+  }
+  
+  public static boolean containsWord(String str, String word, boolean caseSensitive) {
+	  StringBuilder current = new StringBuilder();
+	  int i = 0;
+	  while (i < str.length()) {
+		  char c = str.charAt(i);
+		  if (isLetter(c))
+			  current.append(c);
+		  else {
+			  if (current.length() == 0) continue;
+			  if (caseSensitive) {
+				  if (current.toString().equals(word)) return true;
+			  } else {
+				  if (current.toString().equalsIgnoreCase(word)) return true;
+			  }
+			  current = new StringBuilder();
+		  }
+	  }
+	  return false;
   }
 }

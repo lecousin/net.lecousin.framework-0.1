@@ -161,6 +161,34 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 					ev.removeListener(elementChangedListener);
 				for (Event<?> ev : contentChangedEvents)
 					ev.removeFireListener(contentChangedListener);
+				verticalBar = null;
+				panel = null;
+				scrollRows = null;
+				panelRows = null;
+				layout = null;
+				columns.clear(); columns = null;
+				rows.clear(); rows = null;
+				LCTable.this.contentProvider = null;
+				LCTable.this.config = null;
+				addElementEvents.clear(); addElementEvents = null;
+				addElementListener = null;
+				backgroundAdd = null;
+				LCTable.this.contentChangedEvents.clear(); LCTable.this.contentChangedEvents = null;
+				LCTable.this.contentChangedListener = null;
+				LCTable.this.doubleClick.free(); LCTable.this.doubleClick = null;
+				LCTable.this.drags.clear(); LCTable.this.drags = null;
+				for (DragSource ds : dragSources.values())
+					ds.dispose();
+				LCTable.this.dragSources.clear(); LCTable.this.dragSources = null;
+				LCTable.this.elementChangedEvents.clear(); LCTable.this.elementChangedEvents = null;
+				LCTable.this.elementChangedListener = null;
+				LCTable.this.keyListener = null;
+				LCTable.this.keyListeners.clear(); LCTable.this.keyListeners = null;
+				LCTable.this.removeElementEvents.clear(); LCTable.this.removeElementEvents = null;
+				LCTable.this.removeElementListener = null;
+				LCTable.this.resizer = null;
+				LCTable.this.rightClick.free(); LCTable.this.rightClick = null;
+				LCTable.this.selectionChanged.free(); LCTable.this.selectionChanged = null;
 			}
 		});
 	}
@@ -319,6 +347,12 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 			}, false);
 			UIControlUtil.recursiveKeyListener(controls[0], keyListener);
 			addDragSupport(this);
+			panel.addDisposeListener(new DisposeListener() {
+				public void widgetDisposed(DisposeEvent e) {
+					Row.this.element = null;
+					controls = null;
+				}
+			});
 		}
 		T element;
 		Control[] controls;
@@ -877,8 +911,12 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 			int align = col.provider.getAlignment();
 			String title = col.provider.getTitle();
 			Point tsize = e.gc.textExtent(title);
+			List<Font> fonts = new LinkedList<Font>();
+			Font initialFont = e.gc.getFont();
 			while (tsize.x > size.x+4 && e.gc.getFont().getFontData()[0].height > 5) {
-				e.gc.setFont(UIUtil.increaseFontSize(e.gc.getFont(), -1));
+				Font font = UIUtil.increaseFontSize(e.gc.getFont(), -1);
+				fonts.add(font);
+				e.gc.setFont(font);
 				tsize = e.gc.textExtent(title);
 			}
 			y = size.y - tsize.y - 2;
@@ -903,6 +941,8 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 				e.gc.drawLine(size.x/2-1, 3, size.x/2+1, 3);
 				e.gc.drawPoint(size.x/2, 4);
 			}
+			e.gc.setFont(initialFont);
+			for (Font f : fonts) f.dispose();
 		}
 		public void mouseDoubleClick(MouseEvent e) {
 		}

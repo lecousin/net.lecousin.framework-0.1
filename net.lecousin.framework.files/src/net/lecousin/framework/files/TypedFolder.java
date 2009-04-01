@@ -64,6 +64,7 @@ public class TypedFolder {
 			amount -= step;
 			subFolders.add(new TypedFolder(rootURI, f, recurse, restriction, progress, step));
 		}
+		progress.progress(amount);
 	}
 	
 	public IFileStore folder;

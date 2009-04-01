@@ -11,6 +11,13 @@ public abstract class SectionContainer extends Section {
 		sections.add(section);
 	}
 	
+	protected void freeSections() {
+		for (Section s : sections)
+			s.free();
+		sections.clear();
+		sections = null;
+	}
+	
 	public Link findLink(String href) {
 		return findSection(Link.class, new FinderData<Link,String>(href) {
 			public boolean check(Link link) {

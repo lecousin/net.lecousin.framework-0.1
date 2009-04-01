@@ -12,6 +12,8 @@ import net.lecousin.framework.ui.eclipse.control.text.lcml.internal.SectionConta
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -120,6 +122,13 @@ public class LCMLText {
 		public Panel(Composite parent) {
 			super(parent, SWT.NONE);
 			setLayout(new Layout());
+			addDisposeListener(new DisposeListener() {
+				public void widgetDisposed(DisposeEvent e) {
+					scroll = null;
+					panel = null;
+					text = null;
+				}
+			});
 		}
 		@Override
 		public Point computeSize(int hint, int hint2, boolean changed) {

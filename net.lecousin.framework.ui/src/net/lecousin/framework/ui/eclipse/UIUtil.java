@@ -355,11 +355,13 @@ public abstract class UIUtil {
     	}, new Pair<T,Event.Listener<T>>(data, clickListener));
     }
     public static <T> Button newCheck(Composite parent, String text, Event.Listener<Pair<Boolean,T>> clickListener, T data) {
-    	return newButton(parent, text, SWT.CHECK, new Event.Listener<Pair<Button,Pair<T,Event.Listener<Pair<Boolean,T>>>>>() {
-    		public void fire(Pair<Button, Pair<T,Event.Listener<Pair<Boolean,T>>>> event) {
-    			event.getValue2().getValue2().fire(new Pair<Boolean,T>(event.getValue1().getSelection(), event.getValue2().getValue1()));
-    		}
-    	}, new Pair<T,Event.Listener<Pair<Boolean,T>>>(data, clickListener));
+    	if (clickListener != null)
+	    	return newButton(parent, text, SWT.CHECK, new Event.Listener<Pair<Button,Pair<T,Event.Listener<Pair<Boolean,T>>>>>() {
+	    		public void fire(Pair<Button, Pair<T,Event.Listener<Pair<Boolean,T>>>> event) {
+	    			event.getValue2().getValue2().fire(new Pair<Boolean,T>(event.getValue1().getSelection(), event.getValue2().getValue1()));
+	    		}
+	    	}, new Pair<T,Event.Listener<Pair<Boolean,T>>>(data, clickListener));
+    	return newButton(parent, text, SWT.CHECK, null, null);
     }
     
     public static <T> Radio newRadio(Composite parent, String[] options, Event.Listener<Pair<String,T>> listener, T data) {
@@ -399,7 +401,8 @@ public abstract class UIUtil {
 	public static Text newText(Composite parent, String text, ModifyListener listener) {
 		Text ctrl = new Text(parent, SWT.BORDER);
 		ctrl.setText(text != null ? text : "");
-		ctrl.addModifyListener(listener);
+		if (listener != null)
+			ctrl.addModifyListener(listener);
 		return ctrl;
 	}
 	
@@ -535,6 +538,10 @@ public abstract class UIUtil {
     public static Font setFontStyle(Font font, int style) {
     	FontData data = font.getFontData()[0];
     	return new Font(font.getDevice(), data.getName(), data.getHeight(), style);
+    }
+    public static Font copyFont(Font font) {
+    	FontData data = font.getFontData()[0];
+    	return new Font(font.getDevice(), data.getName(), data.getHeight(), data.getStyle());
     }
     
     public static GridData indentOnGrid(Control c, int indent) {

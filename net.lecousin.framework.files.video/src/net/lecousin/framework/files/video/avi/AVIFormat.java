@@ -3,6 +3,7 @@ package net.lecousin.framework.files.video.avi;
 import java.io.IOException;
 
 import net.lecousin.framework.files.video.VideoFileInfo;
+import net.lecousin.framework.geometry.PointInt;
 import net.lecousin.framework.io.IOUtil;
 import net.lecousin.framework.io.LCPartialBufferedInputStream;
 
@@ -128,5 +129,11 @@ public class AVIFormat implements VideoFileInfo {
 		private String codec;
 		private String language;
 		private String streamName;
+	}
+	
+	public PointInt getDimension() {
+		if (width > 0 && height > 0)
+			return new PointInt((int)width, (int)height);
+		return null;
 	}
 }
