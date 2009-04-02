@@ -159,6 +159,7 @@ public abstract class XmlUtil {
     }
     
     public static String encodeXML(String value) {
+    	if (value == null) return "";
     	StringBuilder result = new StringBuilder();
         for (int i = 0; i < value.length(); ++i) {
             char c = value.charAt(i);

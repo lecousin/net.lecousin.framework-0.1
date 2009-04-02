@@ -10,10 +10,10 @@ import org.eclipse.swt.widgets.Control;
 
 public interface MediaPlayerPlugin {
 
-	public Media newMedia(URI uri);
+	public Media newMedia(URI uri) throws UnsupportedFormatException;
 	public void freeMedia(Media media);
 	
-	public void start(Media media);
+	public void start(Media media) throws UnsupportedFormatException;
 	public void pause(Media media);
 	public void stop(Media media);
 	

@@ -26,7 +26,7 @@ public class AVIFormat implements VideoFileInfo {
 		byte[] buf = new byte[12];
 		if (stream.read(buf) != 12) return false;
 		if (buf[0x00] != 'L' || buf[0x01] != 'I' || buf[0x02] != 'S' || buf[0x03] != 'T') return false;
-		long size = IOUtil.readLong(buf, 4);
+		long size = IOUtil.readLongIntel(buf, 4);
 		if (buf[0x08] != 'h' || buf[0x09] != 'd' || buf[0x0A] != 'r' || buf[0x0B] != 'l') return false;
 		buf = null;
 		long used = readAVIH(avi, stream);
@@ -47,15 +47,15 @@ public class AVIFormat implements VideoFileInfo {
 		if (stream.read(buf) != 0x40) return -1;
 		if (buf[0x00] != 'a' || buf[0x01] != 'v' || buf[0x02] != 'i' || buf[0x03] != 'h') return -1;
 		if (buf[0x04] != 0x38 || buf[0x05] != 0 || buf[0x06] != 0 || buf[0x07] != 0) return -1;
-		avi.microSecPerFrame = IOUtil.readLong(buf, 0x08);
-		avi.nbFrames = IOUtil.readLong(buf, 0x18);
-		long nb = IOUtil.readLong(buf, 0x20);
+		avi.microSecPerFrame = IOUtil.readLongIntel(buf, 0x08);
+		avi.nbFrames = IOUtil.readLongIntel(buf, 0x18);
+		long nb = IOUtil.readLongIntel(buf, 0x20);
 		if (nb > 100) nb = 0;
 		avi.streams = new Stream[(int)nb];
 		for (int i = 0; i < avi.streams.length; ++i)
 			avi.streams[i] = new Stream();
-		avi.width = IOUtil.readLong(buf, 0x28);
-		avi.height = IOUtil.readLong(buf, 0x2C);
+		avi.width = IOUtil.readLongIntel(buf, 0x28);
+		avi.height = IOUtil.readLongIntel(buf, 0x2C);
 		return 0x40;
 	}
 	
@@ -63,14 +63,14 @@ public class AVIFormat implements VideoFileInfo {
 		byte[] buf = new byte[12];
 		if (stream.read(buf) != 12) return -1;
 		if (buf[0x00] != 'L' || buf[0x01] != 'I' || buf[0x02] != 'S' || buf[0x03] != 'T') return -1;
-		long size = IOUtil.readLong(buf, 4);
+		long size = IOUtil.readLongIntel(buf, 4);
 		if (buf[0x08] != 's' || buf[0x09] != 't' || buf[0x0A] != 'r' || buf[0x0B] != 'l') return -1;
 		buf = null;
 		long remaining = size;
 		do {
 			buf = new byte[8];
 			if (stream.read(buf) != 8) return -1;
-			long partSize = IOUtil.readLong(buf, 4);
+			long partSize = IOUtil.readLongIntel(buf, 4);
 			buf = new byte[(int)partSize];
 			if (stream.read(buf) != partSize) return -1;
 			if (buf[0] == 's' || buf[1] == 't' || buf[2] == 'r') {

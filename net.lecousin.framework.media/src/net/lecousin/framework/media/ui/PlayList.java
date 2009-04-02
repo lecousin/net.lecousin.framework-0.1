@@ -11,6 +11,7 @@ import java.util.Set;
 
 import net.lecousin.framework.media.Local;
 import net.lecousin.framework.media.MediaPlayer;
+import net.lecousin.framework.media.UnsupportedFormatException;
 import net.lecousin.framework.thread.RunnableWithData;
 import net.lecousin.framework.ui.eclipse.SharedImages;
 import net.lecousin.framework.ui.eclipse.UIUtil;
@@ -116,7 +117,11 @@ public class PlayList {
 		if (plugin == null) return;
 		tree.showItem(item);
 		playing(item);
-		player.start(uri, plugin);
+		try { 
+			player.start(uri, plugin); 
+		} catch (UnsupportedFormatException e) {
+			// TODO alternate plugin
+		}
 		playing = media;
 	}
 	

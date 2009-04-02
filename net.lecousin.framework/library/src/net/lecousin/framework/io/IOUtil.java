@@ -53,12 +53,36 @@ public class IOUtil {
 		} while (true);
 	}
 	
-	public static long readLong(byte[] buffer, int offset) {
+	/** big-endian or motorola format */
+	public static long readLongMotorola(byte[] buffer, int offset) {
 		long value = 0;
 		value += (buffer[offset] & 0xFF) << 24;
 		value += (buffer[offset+1] & 0xFF) << 16;
 		value += (buffer[offset+2] & 0xFF) << 8;
 		value += (buffer[offset+3] & 0xFF);
+		return value;
+	}
+	/** little-endian or intel format */
+	public static long readLongIntel(byte[] buffer, int offset) {
+		long value = 0;
+		value += (buffer[offset] & 0xFF);
+		value += (buffer[offset+1] & 0xFF) << 8;
+		value += (buffer[offset+2] & 0xFF) << 16;
+		value += (buffer[offset+3] & 0xFF) << 24;
+		return value;
+	}
+	/** little-endian or intel format */
+	public static short readShortIntel(byte[] buffer, int offset) {
+		short value = 0;
+		value += (buffer[offset] & 0xFF);
+		value += (buffer[offset+1] & 0xFF) << 8;
+		return value;
+	}
+	/** big-endian or motorola format */
+	public static short readShortMotorola(byte[] buffer, int offset) {
+		short value = 0;
+		value += (buffer[offset] & 0xFF) << 8;
+		value += (buffer[offset+1] & 0xFF);
 		return value;
 	}
 	

@@ -5,8 +5,10 @@ import java.net.URI;
 import net.lecousin.framework.files.FileType;
 import net.lecousin.framework.files.FileTypeDetector;
 import net.lecousin.framework.files.TypedFile;
+import net.lecousin.framework.files.audio.asf.ASFFile;
 import net.lecousin.framework.files.audio.cda.CDAFile;
 import net.lecousin.framework.files.audio.mp3.MP3File;
+import net.lecousin.framework.files.audio.wav.WAVFile;
 import net.lecousin.framework.io.LCPartialBufferedInputStream;
 
 public class AudioFileDetector implements FileTypeDetector {
@@ -19,7 +21,7 @@ public class AudioFileDetector implements FileTypeDetector {
 	}
 
 	private static final String[] extensions = new String[] {
-		"mp3", "mpeg3", "mpg3", "cda"
+		"mp3", "mpeg3", "mpg3", "cda", "wav", "wave", "asf", "wma"
 	};
 	public String[] getSupportedExtensions() {
 		return extensions;
@@ -34,16 +36,33 @@ public class AudioFileDetector implements FileTypeDetector {
 	public TypedFile detect(String scheme, String extension, URI uri, LCPartialBufferedInputStream stream) {
 		boolean cda = false;
 		boolean mp3 = false;
+		boolean wav = false;
+		boolean asf = false;
 		if (extension.equals("mp3") || extension.equals("mpeg3") || extension.equals("mpg3")) {
 			TypedFile file = MP3File.detect(uri, stream);
 			if (file != null) return file;
 			stream.move(0);
 			mp3 = true;
+		} else if (extension.equals("wav") || extension.equals("wave")) {
+			TypedFile file = WAVFile.detect(uri, stream);
+			if (file != null) return file;
+			stream.move(0);
+			wav = true;
+		} else if (extension.equals("asf") || extension.equals("wma")) {
+			TypedFile file = ASFFile.detect(uri, stream);
+			if (file != null) return file;
+			stream.move(0);
+			asf = true;
 		} else if (extension.equals("cda")) {
 			TypedFile file = CDAFile.detect(uri, stream);
 			if (file != null) return file;
 			stream.move(0);
 			cda = true;
+		}
+		if (!asf) {
+			TypedFile file = ASFFile.detect(uri, stream);
+			if (file != null) return file;
+			stream.move(0);
 		}
 		if (!cda) {
 			TypedFile file = CDAFile.detect(uri, stream);
@@ -52,6 +71,11 @@ public class AudioFileDetector implements FileTypeDetector {
 		}
 		if (!mp3) {
 			TypedFile file = MP3File.detect(uri, stream);
+			if (file != null) return file;
+			stream.move(0);
+		}
+		if (!wav) {
+			TypedFile file = WAVFile.detect(uri, stream);
 			if (file != null) return file;
 			stream.move(0);
 		}

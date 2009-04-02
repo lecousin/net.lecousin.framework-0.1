@@ -57,13 +57,16 @@ public class MP3File extends AudioFile {
 		if (id3.getDuration() <= 0) {
 			try {
 				stream.move(startPos);
-				if (stream.read() != 0xFF) return null;
-				if ((stream.read() & 0xE0) != 0xE0) return null;
-				if ((stream.read() & 0xF0) == 0xF0) return null;
+				if (id3 instanceof ID3Format_None) {
+					int i;
+					while ((i = stream.read()) == 0);
+					if (i != 0xFF) return null;
+					if ((stream.read() & 0xE0) != 0xE0) return null;
+					if ((stream.read() & 0xF0) == 0xF0) return null;
+				}
 				stream.move(startPos);
 				Bitstream bs = new Bitstream(stream, true, true);
 				Header h = bs.readFrame();
-				if (h == null) return null;
 				if (h != null)
 					id3.setDuration((long)h.total_ms((int)stream.getSize()));
 			} catch (BitstreamException e) {

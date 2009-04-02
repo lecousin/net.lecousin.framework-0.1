@@ -5,6 +5,7 @@ import java.net.URI;
 import net.lecousin.framework.media.Media;
 import net.lecousin.framework.media.MediaPlayer;
 import net.lecousin.framework.media.MediaPlayerListener;
+import net.lecousin.framework.media.UnsupportedFormatException;
 import net.lecousin.framework.ui.eclipse.UIUtil;
 import net.lecousin.framework.ui.eclipse.graphics.ColorUtil;
 
@@ -73,7 +74,7 @@ public class MediaPlayerControl {
 	
 	public Color getControlSeparatorColor() { return controlSeparatorColor; }
 	
-	void start(URI uri, String plugin) {
+	void start(URI uri, String plugin) throws UnsupportedFormatException {
 		initPlugin(plugin);
 		if (player != null) {
 			//List<Media> medias = player.getMedias();

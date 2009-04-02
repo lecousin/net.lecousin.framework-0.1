@@ -11,6 +11,7 @@ import java.util.List;
 import net.lecousin.framework.event.ProcessListener;
 import net.lecousin.framework.geometry.PointInt;
 import net.lecousin.framework.media.MediaPlayer;
+import net.lecousin.framework.media.UnsupportedFormatException;
 import net.lecousin.framework.thread.RunnableWithData;
 import net.lecousin.framework.ui.eclipse.SWT_AWT_Util;
 import net.lecousin.framework.ui.eclipse.UIUtil;
@@ -83,7 +84,12 @@ public class SnapshotTaker {
 					player = MediaPlayer.create(snap.pluginID);
 					plugin = snap.pluginID;
 				}
-				player.addMedia(snap.uri);
+				try { player.addMedia(snap.uri); }
+				catch (UnsupportedFormatException e) {
+					player.free();
+					player = null;
+					return;
+				}
 				player.setMute(true);
 				Display.getDefault().syncExec(new RunnableWithData<SnapshotTakerThread>(this) {
 					public void run() {
@@ -102,7 +108,10 @@ public class SnapshotTaker {
 							try { data().robot = new Robot(); } catch (AWTException e) {}
 						shell.setVisible(true);
 						long start = System.currentTimeMillis();
-						player.start();
+						try { player.start(); }
+						catch (UnsupportedFormatException e) {
+							return;
+						}
 						/*while (System.currentTimeMillis() - start < 5000)
 							UIUtil.runPendingEvents(Display.getCurrent());*/
 						for (Double time : snap.times) {
@@ -141,7 +150,8 @@ public class SnapshotTaker {
 	public static Image take(MediaPlayer player, Composite visual, double pos, Checker checker) {
 		player.setMute(true);
 		if (!player.isPlaying())
-			player.start();
+			try { player.start(); }
+			catch (UnsupportedFormatException e) { return null; }
 		player.setPosition(pos);
 		long start = System.currentTimeMillis();
 		while (System.currentTimeMillis() - start < 1000)

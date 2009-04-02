@@ -7,6 +7,7 @@ import net.lecousin.framework.math.Scale;
 import net.lecousin.framework.media.Media;
 import net.lecousin.framework.media.MediaPlayer;
 import net.lecousin.framework.media.MediaPlayerListener;
+import net.lecousin.framework.media.UnsupportedFormatException;
 import net.lecousin.framework.media.internal.EclipsePlugin;
 import net.lecousin.framework.thread.RunnableWithData;
 import net.lecousin.framework.time.DateTimeUtil;
@@ -154,7 +155,10 @@ public class PlayerControls extends Composite {
 			if (player.isPlaying())
 				player.pause(true);
 			else
-				player.start(true);
+				try { player.start(true); }
+				catch (UnsupportedFormatException e) {
+					// TODO
+				}
 		}
 	}
 	private class Stop implements Listener<MouseEvent> {

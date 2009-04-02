@@ -29,7 +29,7 @@ public class ID3Format_v2 extends ID3Format {
 		if (hasExtendedHeader) {
 			byte[] extHeader = new byte[6];
 			in.read(extHeader);
-			long extHeaderSize = IOUtil.readLong(extHeader, 0);
+			long extHeaderSize = IOUtil.readLongMotorola(extHeader, 0);
 			in.skip(extHeaderSize-6);
 			pos += extHeaderSize;
 		}
@@ -113,7 +113,7 @@ public class ID3Format_v2 extends ID3Format {
 		in.read(frameHeader);
 		if (frameHeader[0] == 0x00)
 			return 0;
-		long frameSize = IOUtil.readLong(frameHeader, 4);
+		long frameSize = IOUtil.readLongMotorola(frameHeader, 4);
 		if (pos+10+frameSize > len)
 			return 0;
 		byte[] frameBody = new byte[(int)frameSize];

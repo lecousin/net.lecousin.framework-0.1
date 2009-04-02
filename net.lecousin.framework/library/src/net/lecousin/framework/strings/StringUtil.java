@@ -296,7 +296,7 @@ public class StringUtil
 	  StringBuilder current = new StringBuilder();
 	  int i = 0;
 	  while (i < str.length()) {
-		  char c = str.charAt(i);
+		  char c = str.charAt(i++);
 		  if (isLetter(c))
 			  current.append(c);
 		  else {

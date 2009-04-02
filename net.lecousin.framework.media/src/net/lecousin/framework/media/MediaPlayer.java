@@ -42,7 +42,7 @@ public class MediaPlayer {
 			public void fire(Media event) {
 				for (MediaPlayerListener listener : listeners)
 					listener.mediaEnded(event);
-				next();
+				try { next(); } catch (UnsupportedFormatException e) {}
 			}
 		});
 		plugin.stopped().addListener(new Listener<Media>() {
@@ -92,7 +92,7 @@ public class MediaPlayer {
 		listeners.remove(listener);
 	}
 	
-	public synchronized Media addMedia(URI uri) {
+	public synchronized Media addMedia(URI uri) throws UnsupportedFormatException {
 		Media media = plugin.newMedia(uri);
 		medias.add(media);
 		for (MediaPlayerListener listener : listeners)
@@ -159,10 +159,10 @@ public class MediaPlayer {
 			run.run();
 	}
 	
-	public synchronized Media start() {
+	public synchronized Media start() throws UnsupportedFormatException {
 		return start(false);
 	}
-	public synchronized Media start(boolean background) {
+	public synchronized Media start(boolean background) throws UnsupportedFormatException {
 		if (current == null) {
 			if (medias.isEmpty()) return null;
 			current = medias.getFirst();
@@ -170,14 +170,17 @@ public class MediaPlayer {
 		start(current, background);
 		return current;
 	}
-	public synchronized void start(Media media) {
+	public synchronized void start(Media media) throws UnsupportedFormatException {
 		start(media, true);
 	}
-	private synchronized void start(Media media, boolean background) {
+	private synchronized void start(Media media, boolean background) throws UnsupportedFormatException {
 		current = media;
-		run(background, new Run(current) {
-			public void run() { plugin.start(current); }
-		});
+		if (background)
+			run(background, new Run(current) {
+				public void run() { try { plugin.start(current); } catch (UnsupportedFormatException e) {} }
+			});
+		else
+			plugin.start(current);
 	}
 	public synchronized void pause() {
 		pause(false);
@@ -202,16 +205,19 @@ public class MediaPlayer {
 		return playing;
 	}
 	
-	public Media next() {
+	public Media next() throws UnsupportedFormatException {
 		return next(false);
 	}
-	public Media next(boolean background) {
+	public Media next(boolean background) throws UnsupportedFormatException {
 		if (current == null) {
 			if (medias.isEmpty()) return null;
 			current = medias.getFirst();
-			run(background, new Run(current) {
-				public void run() { plugin.start(current); } 
-			});
+			if (background)
+				run(background, new Run(current) {
+					public void run() { try { plugin.start(current); } catch (UnsupportedFormatException e) {} }
+				});
+			else
+				plugin.start(current);
 			return current;
 		}
 		int index = medias.indexOf(current);
@@ -219,12 +225,17 @@ public class MediaPlayer {
 		
 		Media prev = current;
 		current = medias.get(index+1);
-		run(background, new Run2(prev, current) {
-			public void run() {
-				plugin.stop(current1);
-				plugin.start(current2);
-			}
-		});
+		if (background)
+			run(background, new Run2(prev, current) {
+				public void run() {
+					plugin.stop(current1);
+					try { plugin.start(current2); } catch (UnsupportedFormatException e) {}
+				}
+			});
+		else {
+			plugin.stop(prev);
+			plugin.start(current);
+		}
 		return current;
 	}
 	

@@ -1,6 +1,7 @@
 package net.lecousin.framework.files;
 
 import java.net.URI;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,7 +19,7 @@ public class TypedFolder {
 
 	public TypedFolder(URI rootURI, IFileStore folder, boolean recurse, Iterable<FileType> restriction, WorkProgress progress, int amount) {
 		if (progress.isCancelled()) return;
-		progress.setSubDescription(rootURI.relativize(folder.toURI()).toString());
+		progress.setSubDescription(URLDecoder.decode(rootURI.relativize(folder.toURI()).toString()));
 		this.folder = folder;
 		IFileStore[] children;
 		try { children = folder.childStores(EFS.NONE, null); }
