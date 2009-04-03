@@ -87,7 +87,7 @@ public class EmbeddedWorkProgressControl implements Listener<WorkProgress> {
 		sep.setLayoutData(gd);
 		
 		scroll = new ScrolledComposite(panel, SWT.V_SCROLL);
-		subWorksPanel = new SubWorkPanel(scroll, progress, subBarsColor);
+		subWorksPanel = new SubWorkPanel(scroll, progress, subBarsColor, false);
 		scroll.setContent(subWorksPanel);
 		gd = UIUtil.gridData(1, true, 1, true);
 		gd.verticalIndent = 10;
@@ -219,9 +219,12 @@ public class EmbeddedWorkProgressControl implements Listener<WorkProgress> {
 					resize();
 				}
 			}
+			boolean needResize = false;
 			String txt = progress.getDescription() + "... " + (progress.getAmount() > 0 ? (progress.getPosition()*100/progress.getAmount()) : 0) + "%";
-			if (!mainLabel.getText().equals(txt))
+			if (!mainLabel.getText().equals(txt)) {
 				mainLabel.setText(txt);
+				needResize = true;
+			}
 			int amount = progress.getAmount();
 			if (mainBar.getMaximum() != amount)
 				mainBar.setMaximum(amount);
@@ -240,13 +243,16 @@ public class EmbeddedWorkProgressControl implements Listener<WorkProgress> {
 					subLabel.setText(txt);
 					gd.exclude = false;
 				} else {
-					if (!subLabel.getText().equals(txt))
+					if (!subLabel.getText().equals(txt)) {
 						subLabel.setText(txt);
+						needResize = true;
+					}
 				}
 			}
 			timeEstimate.signalProgress(pos, amount);
 			if (time - timeEstimate.getStartTime() > 10*1000) {
 				gd = (GridData)timingLabel.getLayoutData();
+				if (gd.exclude) needResize = true;
 				gd.exclude = false;
 				String text = 
 					Local.Elapsed_time+": " + DateTimeUtil.getTimeMinimalString(time-timeEstimate.getStartTime()) +
@@ -259,10 +265,11 @@ public class EmbeddedWorkProgressControl implements Listener<WorkProgress> {
 			if (time - lastRefreshSub > subRefreshTime[refreshPos]) {
 				if (subWorksPanel.refresh()) {
 					subWorksPanel.layout(true, true);
-					resize();
+					needResize = true;
 				}
 				lastRefreshSub = time;
 			}
+			if (needResize) resize();
 			UIUtil.runPendingEvents(container.getDisplay());
 		}
 	};
@@ -283,7 +290,7 @@ public class EmbeddedWorkProgressControl implements Listener<WorkProgress> {
 	}
 	
 	private static class SubWorkPanel extends Composite {
-		SubWorkPanel(Composite parent, WorkProgress progress, Color progressBarColor) {
+		SubWorkPanel(Composite parent, WorkProgress progress, Color progressBarColor, boolean shown) {
 			super(parent, SWT.NONE);
 			this.progress = progress;
 			this.progressBarColor = progressBarColor;
@@ -293,22 +300,26 @@ public class EmbeddedWorkProgressControl implements Listener<WorkProgress> {
 			layout.verticalSpacing = 0;
 			layout.horizontalSpacing = 0;
 			GridData gd;
+
 			
-			header_icon = new Label(this, SWT.NONE);
-			header_icon.setImage(SharedImages.getImage(SharedImages.icons.x16.basic.WAIT_CLOCK));
-			gd = new GridData();
-			gd.verticalSpan = 2;
-			gd.verticalAlignment = SWT.TOP;
-			header_icon.setLayoutData(gd);
+			if (shown) {
+				header_icon = new Label(this, SWT.NONE);
+				header_icon.setImage(SharedImages.getImage(SharedImages.icons.x16.basic.WAIT_CLOCK));
+				gd = new GridData();
+				gd.verticalSpan = 2;
+				gd.verticalAlignment = SWT.TOP;
+				header_icon.setLayoutData(gd);
 			
-			header = new Composite(this, SWT.NONE);
-			layout = UIUtil.gridLayout(header, 1);
-			layout.marginHeight = 0;
-			layout.marginWidth = 0;
-			layout.marginBottom = 3;
-			layout.verticalSpacing = 0;
-			gd = UIUtil.gridData(1, true, 1, false);
-			header.setLayoutData(gd);
+				header = new Composite(this, SWT.NONE);
+				layout = UIUtil.gridLayout(header, 1);
+				layout.marginHeight = 0;
+				layout.marginWidth = 0;
+				layout.marginBottom = 3;
+				layout.verticalSpacing = 0;
+				gd = UIUtil.gridData(1, true, 1, false);
+				header.setLayoutData(gd);
+			}
+			
 			body = new Composite(this, SWT.NONE);
 			layout = UIUtil.gridLayout(body, 1);
 			layout.marginLeft = 0;
@@ -318,33 +329,35 @@ public class EmbeddedWorkProgressControl implements Listener<WorkProgress> {
 			layout.horizontalSpacing = 0;
 			body.setSize(0, 0);
 			gd = UIUtil.gridData(1, true, 1, false);
-			gd.heightHint = 0;
+			gd.heightHint = 1;
 			body.setLayoutData(gd);
 			
-			header_text = new Label(header, SWT.NONE);
-			header_text.setText(progress.getDescription());
-			header_text.setLayoutData(UIUtil.gridDataHoriz(1, true));
-			UIControlUtil.increaseFontSize(header_text, -1);
-			header_bar = new LCProgressBar(header, LCProgressBar.Style.ROUND, progressBarColor);
-			header_bar.setMinimum(0);
-			header_bar.setMaximum(progress.getAmount());
-			gd = new GridData();
-			gd.exclude = true;
-			gd.horizontalAlignment = SWT.FILL;
-			gd.grabExcessHorizontalSpace = true;
-			gd.heightHint = 10;
-			header_bar.setLayoutData(gd);
-			header_subtext = new Label(header, SWT.NONE);
-			gd = new GridData();
-			gd.exclude = true;
-			gd.horizontalAlignment = SWT.FILL;
-			gd.grabExcessHorizontalSpace = true;
-			header_subtext.setLayoutData(gd);
-			UIControlUtil.increaseFontSize(header_subtext, -1);
+			if (shown) {
+				header_text = new Label(header, SWT.NONE);
+				header_text.setText(progress.getDescription());
+				header_text.setLayoutData(UIUtil.gridDataHoriz(1, true));
+				UIControlUtil.increaseFontSize(header_text, -1);
+				header_bar = new LCProgressBar(header, LCProgressBar.Style.ROUND, progressBarColor);
+				header_bar.setMinimum(0);
+				header_bar.setMaximum(progress.getAmount());
+				gd = new GridData();
+				gd.exclude = true;
+				gd.horizontalAlignment = SWT.FILL;
+				gd.grabExcessHorizontalSpace = true;
+				gd.heightHint = 10;
+				header_bar.setLayoutData(gd);
+				header_subtext = new Label(header, SWT.NONE);
+				gd = new GridData();
+				gd.exclude = true;
+				gd.horizontalAlignment = SWT.FILL;
+				gd.grabExcessHorizontalSpace = true;
+				header_subtext.setLayoutData(gd);
+				UIControlUtil.increaseFontSize(header_subtext, -1);
+			}
 		}
 		private WorkProgress progress;
 		private Color progressBarColor;
-		private Composite header;
+		private Composite header = null;
 		private Composite body;
 		private Label header_icon;
 		private Label header_text;
@@ -369,7 +382,7 @@ public class EmbeddedWorkProgressControl implements Listener<WorkProgress> {
 						break;
 					}
 				if (panel == null) {
-					panel = new SubWorkPanel(body, subWork, progressBarColor);
+					panel = new SubWorkPanel(body, subWork, progressBarColor, true);
 					GridData gd = (GridData)body.getLayoutData();
 					gd.heightHint = SWT.DEFAULT;
 					UIUtil.gridDataHorizFill(panel);
@@ -388,67 +401,69 @@ public class EmbeddedWorkProgressControl implements Listener<WorkProgress> {
 			for (SubWorkPanel p : subPanels)
 				p.dispose();
 			
-			if (progress.isStarted() && !progress.isFinished()) {
-				if (lastWaiting) {
-					lastWaiting = false;
-					header_icon.setImage(SharedImages.getImage(SharedImages.icons.x16.basic.PROCESSING));
-					GridData gd = (GridData)header_bar.getLayoutData();
-					gd.exclude = false;
-					String s = progress.getSubDescription();
-					if (s != null) {
-						gd = (GridData)header_subtext.getLayoutData();
+			if (header != null) {
+				if (progress.isStarted() && !progress.isFinished()) {
+					if (lastWaiting) {
+						lastWaiting = false;
+						header_icon.setImage(SharedImages.getImage(SharedImages.icons.x16.basic.PROCESSING));
+						GridData gd = (GridData)header_bar.getLayoutData();
 						gd.exclude = false;
-						header_subtext.setText(s);
-						changed = true;
-					}
-				} else {
-					int amount = progress.getAmount();
-					if (header_bar.getMaximum() != amount)
-						header_bar.setMaximum(amount);
-					int pos = progress.getPosition();
-					if (lastPos != pos) {
-						lastPos = pos;
-						header_bar.setPosition(pos);
-					}
-					String s = progress.getSubDescription();
-					GridData gd = (GridData)header_subtext.getLayoutData();
-					if (s == null) {
-						if (!gd.exclude) {
-							gd.exclude = true;
-							changed = false;
-						}
-					} else {
-						if (gd.exclude) {
+						String s = progress.getSubDescription();
+						if (s != null) {
+							gd = (GridData)header_subtext.getLayoutData();
 							gd.exclude = false;
-							changed = true;
-						}
-						if (!header_subtext.getText().equals(s)) {
 							header_subtext.setText(s);
 							changed = true;
 						}
+					} else {
+						int amount = progress.getAmount();
+						if (header_bar.getMaximum() != amount)
+							header_bar.setMaximum(amount);
+						int pos = progress.getPosition();
+						if (lastPos != pos) {
+							lastPos = pos;
+							header_bar.setPosition(pos);
+						}
+						String s = progress.getSubDescription();
+						GridData gd = (GridData)header_subtext.getLayoutData();
+						if (s == null) {
+							if (!gd.exclude) {
+								gd.exclude = true;
+								changed = false;
+							}
+						} else {
+							if (gd.exclude) {
+								gd.exclude = false;
+								changed = true;
+							}
+							if (!header_subtext.getText().equals(s)) {
+								header_subtext.setText(s);
+								changed = true;
+							}
+						}
 					}
-				}
-			} else if (progress.isFinished()) {
-				if (!lastFinished) {
-					lastFinished = true;
-					header_icon.setImage(SharedImages.getImage(SharedImages.icons.x16.basic.VALIDATE));
-					GridData gd = (GridData)header_bar.getLayoutData();
-					gd.exclude = true;
-					gd = (GridData)header_subtext.getLayoutData();
-					gd.exclude = true;
-					header_bar.setVisible(false);
-					gd = (GridData)body.getLayoutData();
-					gd.heightHint = 0;
-					changed = true;
-				}
-			} else {
-				if (!lastWaiting) {
-					lastWaiting = true;
-					header_icon.setImage(SharedImages.getImage(SharedImages.icons.x16.basic.WAIT_CLOCK));
-					GridData gd = (GridData)header_bar.getLayoutData();
-					gd.exclude = true;
-					gd = (GridData)header_subtext.getLayoutData();
-					gd.exclude = true;
+				} else if (progress.isFinished()) {
+					if (!lastFinished) {
+						lastFinished = true;
+						header_icon.setImage(SharedImages.getImage(SharedImages.icons.x16.basic.VALIDATE));
+						GridData gd = (GridData)header_bar.getLayoutData();
+						gd.exclude = true;
+						gd = (GridData)header_subtext.getLayoutData();
+						gd.exclude = true;
+						header_bar.setVisible(false);
+						gd = (GridData)body.getLayoutData();
+						gd.heightHint = 0;
+						changed = true;
+					}
+				} else {
+					if (!lastWaiting) {
+						lastWaiting = true;
+						header_icon.setImage(SharedImages.getImage(SharedImages.icons.x16.basic.WAIT_CLOCK));
+						GridData gd = (GridData)header_bar.getLayoutData();
+						gd.exclude = true;
+						gd = (GridData)header_subtext.getLayoutData();
+						gd.exclude = true;
+					}
 				}
 			}
 			

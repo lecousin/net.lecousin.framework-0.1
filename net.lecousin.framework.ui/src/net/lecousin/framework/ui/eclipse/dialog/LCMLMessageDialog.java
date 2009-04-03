@@ -9,6 +9,7 @@ import net.lecousin.framework.ui.eclipse.SharedImages;
 import net.lecousin.framework.ui.eclipse.UIUtil;
 import net.lecousin.framework.ui.eclipse.control.buttonbar.ButtonsPanel;
 import net.lecousin.framework.ui.eclipse.control.buttonbar.CloseButtonPanel;
+import net.lecousin.framework.ui.eclipse.control.buttonbar.YesNoButtonsPanel;
 import net.lecousin.framework.ui.eclipse.control.text.lcml.LCMLText;
 
 import org.eclipse.swt.SWT;
@@ -28,12 +29,17 @@ public class LCMLMessageDialog extends MyDialog {
 	public enum Type {
 		INFORMATION,
 		WARNING,
-		ERROR
+		ERROR,
+		QUESTION
 	}
+	
+	public static final int RESULT_QUESTION_NO = 0;
+	public static final int RESULT_QUESTION_YES = 1;
 	
 	private String message;
 	private Type type;
 	private Map<String,List<Runnable>> linkListeners = new HashMap<String,List<Runnable>>(5);
+	private int result = 0;
 	
 	private LCMLText text;
 	
@@ -68,14 +74,35 @@ public class LCMLMessageDialog extends MyDialog {
 		case INFORMATION: return SharedImages.getImage(SharedImages.icons.x48.basic.INFO);
 		case ERROR: return SharedImages.getImage(SharedImages.icons.x48.basic.ERROR);
 		case WARNING: return SharedImages.getImage(SharedImages.icons.x48.basic.WARNING);
+		case QUESTION: return SharedImages.getImage(SharedImages.icons.x48.basic.QUESTION);
 		}
 	}
 	
 	private ButtonsPanel createButtons(Composite container) {
-		return new CloseButtonPanel(container, false);
+		switch (type) {
+		default:
+		case INFORMATION:
+		case ERROR:
+		case WARNING:
+			return new CloseButtonPanel(container, false);
+		case QUESTION:
+			return new YesNoButtonsPanel(container, false) {
+				@Override
+				protected boolean handleYes() {
+					result = RESULT_QUESTION_YES;
+					return true;
+				}
+				@Override
+				protected boolean handleNo() {
+					result = RESULT_QUESTION_NO;
+					return true;
+				}
+			};
+		}
 	}
 	
-	public void open(String title) {
+	public int open(String title) {
 		super.open(title, MyDialog.FLAGS_MODAL_DIALOG);
+		return result;
 	}
 }

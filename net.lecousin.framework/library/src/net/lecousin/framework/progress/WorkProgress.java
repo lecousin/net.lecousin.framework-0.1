@@ -82,6 +82,7 @@ public class WorkProgress {
 	
 	public synchronized void reset(String description, int amount) {
 		this.description = description;
+		subDescription = "";
 		workAmount = amount;
 		reset();
 	}

@@ -8,11 +8,13 @@ public enum Local {
 	Close("Close", "Fermer"),
 	Filters("Filters", "Filtres"),
 	Ignore("Ignore", "Ignorer"),
+	No("No", "Non"),
 	Ok("Ok", "Ok"),
 	on("on", "sur"),
 	Page("Page", "page"),
 	to__date("to", "au"),
 	to__time("to", "à"),
+	Yes("Yes", "Oui"),
 	
 	Elapsed_time("Elapsed time", "Temps écoulé"),
 	Estimated_remaining_time("Estimated time left", "Temps restant éstimé"),

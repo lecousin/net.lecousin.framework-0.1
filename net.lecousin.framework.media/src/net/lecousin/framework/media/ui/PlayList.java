@@ -18,6 +18,7 @@ import net.lecousin.framework.ui.eclipse.UIUtil;
 import net.lecousin.framework.ui.eclipse.dialog.FlatPopupMenu;
 import net.lecousin.framework.ui.eclipse.graphics.ColorUtil;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DropTarget;
@@ -111,7 +112,12 @@ public class PlayList {
 			start(item.getItem(0));
 	}
 	protected void startMedia(Object media, TreeItem item) {
-		URI uri = getURI(media);
+		URI uri;
+		try { uri = getURI(media); }
+		catch (MediaException e) {
+			MessageDialog.openError(item.getParent().getShell(), "Media Player", e.getMessage());
+			return;
+		}
 		if (uri == null) return;
 		String plugin = getPlugin(media);
 		if (plugin == null) return;
@@ -248,11 +254,14 @@ public class PlayList {
 		return item;
 	}
 	
-	protected URI getURI(Object media) {
+	protected URI getURI(Object media) throws MediaException {
 		if (media instanceof URI)
 			return (URI)media;
-		if (media instanceof File)
-			return ((File)media).toURI();
+		if (media instanceof File) {
+			File file = (File)media;
+			if (!file.exists()) throw new MediaException(Local.process(Local.File__not_found, file.getAbsolutePath()));
+			return file.toURI();
+		}
 		return null;
 	}
 	

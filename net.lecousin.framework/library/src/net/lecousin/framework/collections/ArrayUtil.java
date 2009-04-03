@@ -29,6 +29,13 @@ public class ArrayUtil {
 			if (a1[i] != a2[i]) return false;
 		return true;
 	}
+	public static <T> boolean equals(byte[] a1, int off1, byte[] a2, int off2, int len) {
+		if (a1 == null) return a2 == null;
+		if (a2 == null) return false;
+		for (int i = 0; i < len; ++i)
+			if (a1[i+off1] != a2[i+off2]) return false;
+		return true;
+	}
 	
 	@SuppressWarnings("unchecked")
 	public static <T> T[] createGenericArray(Class<T> clazz, int size) {

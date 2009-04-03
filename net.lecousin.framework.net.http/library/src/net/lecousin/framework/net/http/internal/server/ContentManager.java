@@ -9,6 +9,7 @@ import java.util.ListIterator;
 
 import net.lecousin.framework.collections.CollectionUtil;
 import net.lecousin.framework.eclipse.extension.EclipsePluginExtensionUtil;
+import net.lecousin.framework.log.Log;
 
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
@@ -39,7 +40,8 @@ public class ContentManager implements HttpRequestHandler {
 				HttpRequestHandler handler = (HttpRequestHandler)EclipsePluginExtensionUtil.getInstance(clazz, new Object[][]{ new Object[]{} });
 				CollectionUtil.addSorted(interceptors, new Interceptor(priority, handler), new Interceptor.Comparator());
 			} catch (Throwable t) {
-				// TODO
+				if (Log.error(this))
+					Log.error(this, "Unable to instantiate HTTPRequestHandler class '"+className+"'.");
 			}
 		}
 	}

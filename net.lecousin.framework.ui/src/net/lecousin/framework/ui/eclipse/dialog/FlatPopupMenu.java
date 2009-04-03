@@ -140,7 +140,9 @@ public class FlatPopupMenu extends PopupMenu {
 	public Composite getControl() { return menuPanel; }
 	
 	public void show(Control relative, Orientation orientation, boolean progressive) {
-		Pair<OrientationX,OrientationY> o = setLocationRelative(relative, orientation);
+		Pair<OrientationX,OrientationY> o = null;
+		if (relative != null && orientation != null)
+			o = setLocationRelative(relative, orientation);
 		
 		if (progressive) {
 			openProgressive(o.getValue1(), o.getValue2());
