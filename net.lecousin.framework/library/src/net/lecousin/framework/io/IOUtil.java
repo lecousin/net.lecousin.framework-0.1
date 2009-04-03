@@ -1,9 +1,13 @@
 package net.lecousin.framework.io;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.LinkedList;
+import java.util.List;
 
 import net.lecousin.framework.collections.ArrayUtil;
 import net.lecousin.framework.random.Random;
@@ -42,6 +46,21 @@ public class IOUtil {
 		} while (str.length() < endDelimiter.length() || !str.substring(str.length()-endDelimiter.length()).equals(endDelimiter));
 		str.delete(str.length()-endDelimiter.length(), str.length());
 		return str.toString();
+	}
+	
+	public static String[] readAllLines(File file, boolean includeEmptyLines) throws FileNotFoundException, IOException {
+		return readAllLines(new LCBufferedInputStream(new FileInputStream(file)), includeEmptyLines);
+	}
+	public static String[] readAllLines(InputStream stream, boolean includeEmptyLines) throws IOException {
+		TextLineInputStream in = new TextLineInputStream(stream);
+		List<String> lines = new LinkedList<String>();
+		String line;
+		while ((line = in.readLine()) != null) {
+			if (!includeEmptyLines && line.length() == 0)
+				continue;
+			lines.add(line);
+		}
+		return lines.toArray(new String[lines.size()]);
 	}
 	
 	public static void copy(InputStream in, OutputStream out) throws IOException {

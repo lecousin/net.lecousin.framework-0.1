@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.lecousin.framework.application.Application;
+import net.lecousin.framework.log.Log;
 import net.lecousin.framework.progress.WorkProgress;
 
 public class FileSystemUtil {
@@ -119,5 +121,107 @@ public class FileSystemUtil {
 			else
 				f.delete();
 		dir.delete();
+	}
+	
+	public static class Drive {
+		private Drive(File root, Type type)
+		{ this.root = root; this.type = type; }
+		File root;
+		Type type;
+		
+		public static enum Type {
+			UNKNOWN,
+			REMOVABLE,
+			CDROM,
+			NETWORK,
+			FIXED,
+			RAMDISK,
+			;
+			public static Type get(String s) {
+				try { return get(Integer.parseInt(s)); }
+				catch (NumberFormatException e) { return UNKNOWN; }
+			}
+			public static Type get(int i) {
+				switch (i) {
+				default:
+				case 0: return UNKNOWN;
+				case 1: return REMOVABLE;
+				case 2: return FIXED;
+				case 3: return NETWORK;
+				case 4: return CDROM;
+				case 5: return RAMDISK;
+				}
+			}
+		}
+		
+		public File getRoot() { return root; }
+		public Type getType() { return type; }
+	}
+	
+	private static List<Drive> drives = null;
+	public static void clearDrives() { drives = null; }
+	
+	private static void initDrives() {
+		drives = new LinkedList<Drive>();
+		try { Runtime.getRuntime().exec("wscript //B init.vbs", null, Application.deployPath); }
+		catch (IOException e) {
+			if (Log.error(FileSystemUtil.class))
+				Log.error(FileSystemUtil.class, "Unable to launch script to search drives on the system", e);
+			return;
+		}
+		File file = new File(Application.deployPath, "drives");
+		if (!file.exists()) return;
+		try {
+			String[] lines = IOUtil.readAllLines(file, false);
+			for (String line : lines) {
+				int i = line.indexOf(':');
+				if (i <= 0) continue;
+				File root = new File(line.substring(0, i)+":\\");
+				Drive.Type type = Drive.Type.get(line.substring(i+1));
+				drives.add(new Drive(root, type));
+			}
+		} catch (IOException e) {
+			if (Log.error(FileSystemUtil.class))
+				Log.error(FileSystemUtil.class, "Unable to read drives on the system", e);
+			return;
+		}
+	}
+	
+	/** a file init.vbs must be located in the Application.deployPath directory */
+	public static List<Drive> getDrives() {
+		if (drives == null) initDrives();
+		return drives;
+	}
+	/** a file init.vbs must be located in the Application.deployPath directory */
+	public static boolean isOnAmovibleDrive(File file) {
+		return getAmovibleDrive(file) != null;
+	}
+	/** a file init.vbs must be located in the Application.deployPath directory */
+	public static File getAmovibleDrive(File file) {
+		if (drives == null) initDrives();
+		for (Drive drive : drives)
+			if (drive.getRoot().equals(file))
+				if (isAmovible(drive))
+					return file;
+		File parent = file.getParentFile();
+		if (parent == null) return null;
+		return getAmovibleDrive(parent);
+	}
+	/** a file init.vbs must be located in the Application.deployPath directory */
+	public static List<Drive> getAmovibleDrives() {
+		if (drives == null) initDrives();
+		List<Drive> result = new LinkedList<Drive>();
+		for (Drive d : drives)
+			if (isAmovible(d))
+				result.add(d);
+		return result;
+	}
+	
+	public static boolean isAmovible(Drive drive) {
+		switch (drive.getType()) {
+		case REMOVABLE:
+		case CDROM: return true;
+		default: return false;
+		}
 	}
 }

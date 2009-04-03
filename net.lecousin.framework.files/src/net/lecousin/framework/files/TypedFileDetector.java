@@ -55,7 +55,7 @@ public class TypedFileDetector {
 		String path = uri.getPath();
 		String extension = null;
 		if (path != null && path.length() > 0) {
-			int i = path.indexOf('.');
+			int i = path.lastIndexOf('.');
 			if (i >= 0 && i < path.length()-1) {
 				extension = path.substring(i+1).toLowerCase();
 				List<FileTypeDetector> list = TypedFileRegistry.getByExtension(extension);
