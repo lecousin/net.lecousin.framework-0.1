@@ -6,8 +6,8 @@ Bundle-Version: 0.1.0
 Bundle-Activator: net.lecousin.framework.files.internal.EclipsePlugin
 Bundle-Vendor: Guillaume LE COUSIN
 Require-Bundle: org.eclipse.core.runtime,
- org.eclipse.core.filesystem;bundle-version="1.2.0",
- net.lecousin.framework;bundle-version="0.1.0"
+ org.eclipse.core.filesystem,
+ net.lecousin.framework
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy
 Export-Package: net.lecousin.framework.files

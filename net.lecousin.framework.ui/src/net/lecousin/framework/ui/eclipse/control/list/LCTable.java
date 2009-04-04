@@ -551,6 +551,7 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 			isRefreshing.set(true);
 		}
 		try {
+			backgroundAdd.clear();
 			ArrayList<Row> list = new ArrayList<Row>(rows);
 			LinkedList<Row> toUpdate = new LinkedList<Row>();
 			for (T element : contentProvider.getElements()) {

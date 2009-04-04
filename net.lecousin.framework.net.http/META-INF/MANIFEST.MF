@@ -5,8 +5,8 @@ Bundle-SymbolicName: net.lecousin.framework.net.http
 Bundle-Version: 0.1.0
 Bundle-Activator: net.lecousin.framework.net.http.eclipse.internal.EclipsePlugin
 Require-Bundle: org.eclipse.core.runtime,
- net.lecousin.framework.net.mime;bundle-version="0.1.0",
- net.lecousin.framework;bundle-version="0.1.0"
+ net.lecousin.framework.net.mime,
+ net.lecousin.framework
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Export-Package: net.lecousin.framework.net.http,

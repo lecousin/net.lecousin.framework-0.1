@@ -97,9 +97,9 @@ public class MediaPlayerControl {
 			if (player != null)
 				player.free();
 			player = MediaPlayer.create(id);
+			if (player == null) return;
 			player.addListener(playerListener);
 			controls.setPlayer(player);
-			if (player == null) return;
 		}
 		if (visual == null) {
 			visual = player.createVisual(visualPanel);

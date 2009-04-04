@@ -29,7 +29,7 @@ public class WorkProgress {
 	public String getDescription() { return description; }
 	public void setDescription(String descr) {
 		description = descr;
-		// TODO add an event ?? (same for sub descr, etc...)
+		progressEvent.fire(this);
 	}
 	
 	public String getSubDescription() { return subDescription; }
@@ -129,11 +129,11 @@ public class WorkProgress {
 		subWorks.add(new Pair<WorkProgress,Integer>(subWork, work));
 		subWork.addProgressListener(new Listener<WorkProgress>() {
 			public void fire(WorkProgress event) {
-				int pos = getPosition();
-				if (pos != previousPosition) {
-					previousPosition = pos;
+//				int pos = getPosition();
+//				if (pos != previousPosition) {
+//					previousPosition = pos;
 					progressEvent.fire(WorkProgress.this);
-				}
+//				}
 			}
 		});
 	}

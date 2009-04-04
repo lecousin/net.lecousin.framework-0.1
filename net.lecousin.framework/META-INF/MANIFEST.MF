@@ -5,8 +5,8 @@ Bundle-SymbolicName: net.lecousin.framework
 Bundle-Version: 0.1.0
 Bundle-Activator: net.lecousin.framework.eclipse.internal.EclipsePlugin
 Require-Bundle: org.eclipse.core.runtime,
- org.eclipse.core.resources;bundle-version="3.4.1",
- org.eclipse.core.filesystem;bundle-version="1.2.0"
+ org.eclipse.core.resources,
+ org.eclipse.core.filesystem
 Bundle-ActivationPolicy: lazy
 Export-Package: net.lecousin.framework,
  net.lecousin.framework.application,
