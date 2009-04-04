@@ -129,7 +129,7 @@ public class LCTableWithControls<T> extends Composite {
 		List<T> sel = table.getSelection();
 		if (sel == null || sel.isEmpty()) return;
 		int iStart = table.indexOf(sel.get(sel.size()-1));
-		if (iStart == 0) return;
+		if (iStart == table.getElements().size()) return;
 		for (int pos = iStart+1, i = 0; i < sel.size(); ++i, ++pos) {
 			table.move(sel.get(i), pos);
 			moved.fire(new Pair<T,Integer>(sel.get(i), pos));

@@ -172,7 +172,7 @@ public abstract class XmlUtil {
 	            case '&': result.append("&amp;"); break;
 	            default: result.append(c);
 	            }
-            else
+            else if (c != 0)
             	result.append("&#").append(Integer.toString(c)).append(';');
         }
         return result.toString();

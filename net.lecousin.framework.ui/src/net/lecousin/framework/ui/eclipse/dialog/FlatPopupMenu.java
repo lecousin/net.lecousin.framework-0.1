@@ -141,7 +141,7 @@ public class FlatPopupMenu extends PopupMenu {
 	
 	public void show(Control relative, Orientation orientation, boolean progressive) {
 		Pair<OrientationX,OrientationY> o = null;
-		if (relative != null && orientation != null)
+		if (orientation != null)
 			o = setLocationRelative(relative, orientation);
 		
 		if (progressive) {

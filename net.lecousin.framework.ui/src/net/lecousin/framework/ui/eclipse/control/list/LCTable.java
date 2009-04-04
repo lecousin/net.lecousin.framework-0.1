@@ -582,7 +582,7 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 				panel.getDisplay().asyncExec(new RunnableWithData<Pair<LinkedList<T>,LinkedList<Row>>>(new Pair<LinkedList<T>,LinkedList<Row>>(backgroundAdd,toUpdate)) {
 					public void run() {
 						try {
-							if (panel.isDisposed()) {
+							if (panel == null || panel.isDisposed()) {
 								endRefresh();
 								return;
 							}
@@ -679,7 +679,10 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 	private void moveRow(Row r, int srcIndex, int dstIndex) {
 		layout.rowMoved(r, srcIndex, dstIndex);
 		rows.remove(srcIndex);
-		rows.add(dstIndex, r);
+		if (dstIndex >= rows.size())
+			rows.add(r);
+		else
+			rows.add(dstIndex, r);
 		panelRows.redraw();
 	}
 	private Row getRow(T element) {

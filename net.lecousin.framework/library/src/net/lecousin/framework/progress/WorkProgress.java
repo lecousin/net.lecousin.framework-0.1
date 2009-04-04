@@ -1,5 +1,6 @@
 package net.lecousin.framework.progress;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -135,6 +136,17 @@ public class WorkProgress {
 				}
 			}
 		});
+	}
+	public synchronized void mergeSubWork(WorkProgress subWork) {
+		for (Iterator<Pair<WorkProgress,Integer>> it = subWorks.iterator(); it.hasNext(); ) {
+			Pair<WorkProgress,Integer> p = it.next();
+			if (p.getValue1() == subWork) {
+				workDone += p.getValue2();
+				it.remove();
+				break;
+			}
+		}
+		progressEvent.fire(this);
 	}
 	
 	public void addProgressListener(Listener<WorkProgress> listener) {

@@ -34,6 +34,10 @@ public class LabelButton extends Label implements MouseListener, PaintListener, 
         addDisposeListener(new DisposeListener() {
         	public void widgetDisposed(DisposeEvent e) {
         		clickEvent.free(); clickEvent = null;
+        		removeMouseListener(LabelButton.this);
+        		removeMouseTrackListener(LabelButton.this);
+        		removePaintListener(LabelButton.this);
+        		removeDisposeListener(this);
         	}
         });
     }
@@ -68,6 +72,7 @@ public class LabelButton extends Label implements MouseListener, PaintListener, 
         pushed = true; redraw();
     }
     public void mouseUp(MouseEvent e) {
+    	if (isDisposed()) return;
         pushed = false; redraw();
         clickEvent.fire(e);
     }

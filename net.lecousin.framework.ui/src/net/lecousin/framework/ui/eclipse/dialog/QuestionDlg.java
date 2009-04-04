@@ -75,7 +75,7 @@ public class QuestionDlg extends MyDialog {
 	
 	private ContextualOptions options;
 	private LCMLText message;
-	private ScrolledComposite answerScroll;
+//	private ScrolledComposite answerScroll;
 	private Composite answerPanel;
 	private Map<String,Button> optionsButtons = new HashMap<String,Button>();
 	private Label buttonsSeparator;
@@ -84,22 +84,35 @@ public class QuestionDlg extends MyDialog {
 	
 	@Override
 	protected Composite createControl(Composite container) {
-		Composite panel = new Composite(container, SWT.NONE);
-		UIUtil.gridLayout(panel, 1);
-		message = new LCMLText(panel, false, false);
-		UIUtil.gridDataHorizFill(message.getControl());
-		answerScroll = new ScrolledComposite(panel, SWT.H_SCROLL | SWT.V_SCROLL) {
+		ScrolledComposite scroll = new ScrolledComposite(container, SWT.V_SCROLL | SWT.H_SCROLL) {
 			@Override
 			public Point computeSize(int hint, int hint2, boolean changed) {
-				Point size = getSize();
+				Point size = getContent().getSize();
+				Rectangle r = computeTrim(0, 0, size.x, size.y);
+				size.x = r.width;
+				size.y = r.height;
 				if (hint != SWT.DEFAULT) size.x = hint;
 				if (hint2 != SWT.DEFAULT) size.y = hint2;
 				return size;
 			}
 		};
-		answerPanel = new Composite(answerScroll, SWT.NONE);
-		answerScroll.setContent(answerPanel);
-		UIUtil.gridDataHorizFill(answerScroll);
+		Composite panel = new Composite(scroll, SWT.NONE);
+		scroll.setContent(panel);
+		UIUtil.gridLayout(panel, 1);
+		message = new LCMLText(panel, false, false);
+		UIUtil.gridDataHorizFill(message.getControl());
+//		answerScroll = new ScrolledComposite(panel, SWT.H_SCROLL | SWT.V_SCROLL) {
+//			@Override
+//			public Point computeSize(int hint, int hint2, boolean changed) {
+//				Point size = getSize();
+//				if (hint != SWT.DEFAULT) size.x = hint;
+//				if (hint2 != SWT.DEFAULT) size.y = hint2;
+//				return size;
+//			}
+//		};
+		answerPanel = new Composite(panel, SWT.NONE);
+//		answerScroll.setContent(answerPanel);
+		UIUtil.gridDataHorizFill(answerPanel);
 		if (options != null && !options.getOptions().isEmpty()) {
 			UIUtil.newSeparator(panel, true, true);
 			Composite optionsPanel = new Composite(panel, SWT.NONE);
@@ -258,14 +271,16 @@ public class QuestionDlg extends MyDialog {
 		createAnswers();
 		answerPanel.layout(true, true);
 		UIControlUtil.resize(answerPanel);
-		Point size = answerPanel.getSize();
-		Rectangle rect = answerPanel.getDisplay().getBounds();
-		if (size.x > rect.width*3/4)
-			size.x = rect.width*3/4;
-		if (size.y > rect.height*3/4)
-			size.y = rect.height*3/4;
-		rect = answerScroll.computeTrim(0, 0, size.x, size.y);
-		answerScroll.setSize(rect.width, rect.height);
+		answerPanel.getParent().layout(true, true);
+		UIControlUtil.resize(answerPanel.getParent());
+//		Point size = answerPanel.getSize();
+//		Rectangle rect = answerPanel.getDisplay().getBounds();
+//		if (size.x > rect.width*3/4)
+//			size.x = rect.width*3/4;
+//		if (size.y > rect.height*3/4)
+//			size.y = rect.height*3/4;
+//		rect = answerScroll.computeTrim(0, 0, size.x, size.y);
+//		answerScroll.setSize(rect.width, rect.height);
 		resize();
 		super.open(true);
 //		modal();
