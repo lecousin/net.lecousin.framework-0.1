@@ -158,6 +158,10 @@ public interface Images {
 				public static final String NEW_FOLDER = _path+"new_folder.gif";
 				
 				public static final String FILE_TO_FILE = _path+"file_to_file.gif";
+				
+				public static final String HARD_DRIVE = _path+"hard_drive.gif";
+				public static final String AMOVIBLE_DRIVE = _path+"amovible_drive.gif";
+				public static final String NETWORK_DRIVE = _path+"network_drive.gif";
 			}
 			
 			public interface filetypes {

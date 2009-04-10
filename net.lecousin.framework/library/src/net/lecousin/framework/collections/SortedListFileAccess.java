@@ -37,6 +37,11 @@ public class SortedListFileAccess<T> implements Iterable<T>, SortedList<T> {
 		e.next = null;
 	}
 	
+	public void clear() {
+		head = queue = null;
+		size = 0;
+	}
+	
 	public void add(T o) {
 		size++;
 		if (head == null) {

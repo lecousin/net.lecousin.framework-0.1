@@ -40,6 +40,11 @@ public class SortedListFileAccessLong<T extends SortedListFileAccessLong.LongSor
 		e.next = null;
 	}
 	
+	public void clear() {
+		head = queue = null;
+		size = 0;
+	}
+	
 	public void add(T o) {
 		size++;
 		long ol = o.getLongSortValue();

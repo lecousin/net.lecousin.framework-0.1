@@ -48,6 +48,13 @@ public class FileSystemUtil {
 		if (i < 0) return path;
 		return path.substring(i+1);
 	}
+	public static String getPath(String path) {
+		int i = path.lastIndexOf('/');
+		int j = path.lastIndexOf('\\');
+		if (j > i) i = j;
+		if (i < 0) return "";
+		return path.substring(0,i);
+	}
 	
 	public static String getFileNameWithoutExtension(String path) {
 		return removeFileNameExtension(getFileName(path));

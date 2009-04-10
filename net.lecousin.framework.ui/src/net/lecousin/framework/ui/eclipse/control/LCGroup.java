@@ -18,6 +18,7 @@ public class LCGroup extends Composite {
 	}
 	public LCGroup(Composite parent, String text, Color color) {
 		super(parent, SWT.NONE);
+		super.setBackground(parent.getBackground());
 		this.text = text;
 		this.color = color;
 		GridLayout layout = UIUtil.gridLayout(this, 1);

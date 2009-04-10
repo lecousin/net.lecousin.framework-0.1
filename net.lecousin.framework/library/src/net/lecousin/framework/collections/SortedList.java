@@ -8,6 +8,7 @@ public interface SortedList<T> extends Iterable<T> {
 	
 	public int size();
 	public boolean isEmpty();
+	public void clear();
 	
 	public T first();
 	public T last();

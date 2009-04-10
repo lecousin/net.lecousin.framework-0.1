@@ -205,6 +205,7 @@ public abstract class MyDialog extends Dialog {
         if ((flags & FLAG_TITLE)!=0) shellFlags |= SWT.TITLE;
         if ((flags & FLAG_BORDER)!=0) shellFlags |= SWT.BORDER;
         shell = new Shell(parent, shellFlags);
+        shell.setData(this);
         if (title != null)
         	shell.setText(title);
         shell.setLayout(new FillLayout());
@@ -447,5 +448,15 @@ public abstract class MyDialog extends Dialog {
 			public void shellIconified(ShellEvent e) {
 			}
 		});
+	}
+	
+	public static void resizeDialog(Control c) {
+		if (c == null) return;
+		if (c instanceof Shell) {
+			Object o = ((Shell)c).getData();
+			if (o instanceof MyDialog)
+				((MyDialog)o).resize();
+		} else
+			resizeDialog(c.getParent());
 	}
 }

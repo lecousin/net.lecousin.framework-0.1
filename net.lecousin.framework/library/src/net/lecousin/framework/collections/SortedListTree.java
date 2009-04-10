@@ -37,6 +37,10 @@ public class SortedListTree<T> implements SortedList<T> {
 		Node<T> right;
 	}
 	
+	public void clear() {
+		head = null;
+	}
+	
 	public boolean isEmpty() { return head == null; }
 	public int size() { return size(head); }
 	private int size(Node<T> node) {

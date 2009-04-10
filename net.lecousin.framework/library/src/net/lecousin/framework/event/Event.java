@@ -38,17 +38,20 @@ public class Event<T> {
             listeners.add(listener);
     }
     public void removeListener(Listener<T> listener) {
-        listeners.remove(listener);
+    	if (listeners != null)
+    		listeners.remove(listener);
     }
     public void addFireListener(Runnable listener) {
     	if (!fireListeners.contains(listener))
     		fireListeners.add(listener);
     }
     public void removeFireListener(Runnable listener) {
-    	fireListeners.remove(listener);
+    	if (fireListeners != null)
+    		fireListeners.remove(listener);
     }
     
     public void fire(T event) {
+    	if (listeners == null) return; // already free
     	ArrayList<Listener<T>> list = new ArrayList<Listener<T>>(listeners);
         for (Iterator<Listener<T>> it = list.iterator(); it.hasNext(); ) {
         	Listener<T> listener = it.next();
