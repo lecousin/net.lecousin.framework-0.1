@@ -3,6 +3,7 @@ package net.lecousin.framework.collections;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.NoSuchElementException;
 
 public class SelfMapLinkedList<HashType, EntryType extends SelfMap.Entry<HashType>>
   implements SelfMap<HashType, EntryType>
@@ -226,6 +227,7 @@ public class SelfMapLinkedList<HashType, EntryType extends SelfMap.Entry<HashTyp
     }
     int index = -1;
     Iterator<EntryType> it = null;
+    Iterator<EntryType> prevIt = null;
     
     private void goNext() {
       if (index < 0) { index = 0; it = buckets[index].iterator(); }
@@ -240,12 +242,14 @@ public class SelfMapLinkedList<HashType, EntryType extends SelfMap.Entry<HashTyp
     public EntryType next() {
       if (it == null || !it.hasNext()) return null;
       EntryType entry = it.next();
+      prevIt = it;
       goNext();
       return entry;
     }
 
     public void remove() {
-      throw new UnsupportedOperationException();
+    	if (prevIt == null) throw new NoSuchElementException();
+    	prevIt.remove();
     }
   }
 }

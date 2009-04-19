@@ -11,6 +11,8 @@ import net.lecousin.framework.Pair;
 import net.lecousin.framework.Triple;
 import net.lecousin.framework.event.Event;
 import net.lecousin.framework.event.Event.Listener;
+import net.lecousin.framework.geometry.PointInt;
+import net.lecousin.framework.geometry.RectangleInt;
 import net.lecousin.framework.lang.MyBoolean;
 import net.lecousin.framework.log.Log;
 import net.lecousin.framework.thread.RunnableWithData;
@@ -18,6 +20,7 @@ import net.lecousin.framework.ui.eclipse.UIUtil;
 import net.lecousin.framework.ui.eclipse.control.UIControlUtil;
 import net.lecousin.framework.ui.eclipse.event.DragSourceListenerWithData;
 import net.lecousin.framework.ui.eclipse.graphics.ColorUtil;
+import net.lecousin.framework.ui.eclipse.helper.OnDemandLayoutAndCreate;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -45,8 +48,8 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Pattern;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -75,16 +78,16 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 		verticalBar.setMinimum(0);
 		verticalBar.setIncrement(20);
 
-		Composite content = UIUtil.newGridComposite(contentScroll, 0, 0, columnsProvider.length, 1, 0);
-		contentScroll.setContent(content);
+		contentPanel = UIUtil.newGridComposite(contentScroll, 0, 0, columnsProvider.length, 1, 0);
+		contentScroll.setContent(contentPanel);
 		contentScroll.setExpandVertical(true);
-		resizer.register(content);
+		resizer.register(contentPanel);
         columns = new ArrayList<Column>(columnsProvider.length);
 		for (int i = 0; i < columnsProvider.length; ++i)
 			columns.add(new Column(columnsProvider[i]));
 		boolean first = true;
 		for (Column c : columns) {
-			c.header = new ColumnHeader(content, c);
+			c.header = new ColumnHeader(contentPanel, c);
 			if (first) {
 				first = false;
 				GridData gd = new GridData();
@@ -93,7 +96,7 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 			}
 		}
 		
-		scrollRows = UIUtil.newComposite(content);
+		scrollRows = UIUtil.newComposite(contentPanel);
 		scrollRows.setLayoutData(UIUtil.gridData(columnsProvider.length, true, 1, true));
 		scrollRows.setLayout(new Layout() {
 			private boolean done = false;
@@ -112,6 +115,7 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 		});
 		panelRows = UIUtil.newComposite(scrollRows);
 		panelRows.setLocation(0, 0);
+		ondemand = new OnDemandLayoutAndCreate(panelRows);
 		layout = new TableLayout();
 		panelRows.setLayout(layout);
 		panelRows.addControlListener(new ControlListener() {
@@ -149,7 +153,7 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 		});
 		UIControlUtil.recursiveKeyListener(panel, keyListener);
 		refresh(true);
-		content.setSize(content.computeSize(SWT.DEFAULT, SWT.DEFAULT, true));
+		contentPanel.setSize(contentPanel.computeSize(SWT.DEFAULT, SWT.DEFAULT, true));
 		panelRows.addPaintListener(new RowsPainter());
 		panel.addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(DisposeEvent e) {
@@ -195,8 +199,10 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 
 	private Slider verticalBar;
 	private Composite panel;
+	private Composite contentPanel;
 	private Composite scrollRows;
 	private Composite panelRows;
+	private OnDemandLayoutAndCreate ondemand;
 	private TableLayout layout;
 	private ArrayList<Column> columns;
 	private List<Row> rows = new LinkedList<Row>();
@@ -287,13 +293,21 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 		ColumnHeader header;
 	}
 	private int lastSelection = -1;
-	private class Row {
+	private class Row implements OnDemandLayoutAndCreate.ControlsContainer {
 		Row(T element) {
 			this.element = element;
-			controls = new Control[columns.size()];
+			panel.addDisposeListener(new DisposeListener() {
+				public void widgetDisposed(DisposeEvent e) {
+					Row.this.element = null;
+					_controls = null;
+				}
+			});
+		}
+		public Control[] createControls() {
+			_controls = new Control[columns.size()];
 			for (int i = 0; i < columns.size(); ++i)
-				controls[i] = createControl(columns.get(i), i);
-			UIControlUtil.recursiveMouseListener(controls[0], new MouseListener() {
+				_controls[i] = createControl(columns.get(i), i);
+			UIControlUtil.recursiveMouseListener(_controls[0], new MouseListener() {
 				public void mouseDoubleClick(MouseEvent e) {
 					panelRows.setFocus();
 					doubleClick.fire(Row.this.element);
@@ -345,17 +359,13 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 					}
 				}
 			}, false);
-			UIControlUtil.recursiveKeyListener(controls[0], keyListener);
+			UIControlUtil.recursiveKeyListener(_controls[0], keyListener);
 			addDragSupport(this);
-			panel.addDisposeListener(new DisposeListener() {
-				public void widgetDisposed(DisposeEvent e) {
-					Row.this.element = null;
-					controls = null;
-				}
-			});
+			return _controls;
 		}
+		public Control[] getControls() { return _controls; }
 		T element;
-		Control[] controls;
+		Control[] _controls = null;
 		boolean selected = false;
 		int height = 0;
 		private Control createControl(Column col, int index) {
@@ -364,23 +374,36 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 			return ((ColumnProviderControl<T>)col.provider).getControl(panelRows, element);
 		}
 		void update() {
+			if (_controls == null) return;
 			for (int i = 0; i < columns.size(); ++i) {
 				ColumnProvider<T> provider = columns.get(i).provider;
 				if (provider instanceof ColumnProviderText)
-					updateText(controls[i], (ColumnProviderText<T>)provider, element);
+					updateText(_controls[i], (ColumnProviderText<T>)provider, element);
 			}
 		}
 		void remove() {
-			for (Control c : controls)
-				dispose(c);
+			if (_controls != null)
+				for (Control c : _controls)
+					dispose(c);
+			_controls = null;
 		}
 		boolean setSelected(boolean value) {
 			if (selected == value) return false;
 			selected = value;
-			controls[0].setBackground(selected ? ColorUtil.get(192, 192, 255) : panelRows.getBackground());
-			Rectangle r = controls[0].getBounds();
-			panelRows.redraw(r.x-HORIZ_SPACE, r.y-VERT_SPACE, r.width+2*HORIZ_SPACE, r.height+2*VERT_SPACE, false);
+			if (_controls != null) {
+				_controls[0].setBackground(selected ? ColorUtil.get(192, 192, 255) : panelRows.getBackground());
+				RectangleInt r = ondemand.getBounds(this, 0);
+				panelRows.redraw(r.x-HORIZ_SPACE, r.y-VERT_SPACE, r.width+2*HORIZ_SPACE, r.height+2*VERT_SPACE, false);
+			}
 			return true;
+		}
+		void columnAdded(Column c, boolean deferResize, boolean deferUpdate) {
+			if (_controls == null) return;
+			Control[] newControls = new Control[_controls.length+1];
+			System.arraycopy(_controls, 0, newControls, 0, _controls.length);
+			_controls = newControls;
+			_controls[_controls.length-1] = createControl(c, _controls.length-1);
+			layout.rowUpdated(this, deferResize, deferUpdate);
 		}
 	}
 	
@@ -450,7 +473,7 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 	private List<Event<T>> removeElementEvents = new LinkedList<Event<T>>();
 	private Listener<T> removeElementListener = new Listener<T>() { public void fire(T element) { remove(element); } };
 	private List<Event<T>> elementChangedEvents = new LinkedList<Event<T>>();
-	private Listener<T> elementChangedListener = new Listener<T>() { public void fire(T element) { Row i = getRow(element); if (i != null) updateRow(i, false); } };
+	private Listener<T> elementChangedListener = new Listener<T>() { public void fire(T element) { Row i = getRow(element); if (i != null) updateRow(i, false, false); } };
 	private List<Event<?>> contentChangedEvents = new LinkedList<Event<?>>();
 	private Runnable contentChangedListener = new Runnable() { public void run() { refresh(true); } };
 
@@ -484,7 +507,7 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 	}
 	
 	private void addDragSupport(Row r, int style, Transfer[] transfers, DragListener<T> listener) {
-		addDragSupport(r.controls[0], style, transfers, listener);
+		addDragSupport(r._controls[0], style, transfers, listener);
 	}
 
 	private Map<Control, DragSource> dragSources = new HashMap<Control, DragSource>();
@@ -518,22 +541,43 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 	
 	
 	public void add(T element) {
-		createRow(element, false);
+		createRow(element, false, false);
 	}
 	public void add(List<T> elements) {
 		for (T element : elements)
-			createRow(element, true);
+			createRow(element, true, true);
 		panelRows.setSize(panelRowsSize);
+		layout.updateOnDemand();
 	}
 	public boolean remove(T element) {
 		Row i = getRow(element);
 		if (i == null) return false;
 		boolean selected = i.selected; 
-		removeRow(i, false); 
+		removeRow(i, false, false); 
 		if (selected) fireSelection(); 
 		return true;
 	}
 	
+	public void addColumn(ColumnProvider<T> provider) {
+		Column c = new Column(provider);
+		columns.add(c);
+		GridLayout l = (GridLayout)contentPanel.getLayout();
+		l.numColumns++;
+		c.header = new ColumnHeader(contentPanel, c);
+		c.header.moveBelow(contentPanel.getChildren()[l.numColumns-1-1]);
+		GridData gd = (GridData)scrollRows.getLayoutData();
+		gd.horizontalSpan++;
+		if (panelRowsSize != null) {
+			panelRowsSize.x += c.width + HORIZ_SPACE;
+		}
+		for (Row r : rows)
+			r.columnAdded(c, false, false);
+		if (panelRowsSize != null)
+			panelRows.setSize(panelRowsSize);
+		contentPanel.layout(true, true);
+		UIControlUtil.resize(contentPanel);
+		layout.updateOnDemand();
+	}
 	
 	private MyBoolean isRefreshing = new MyBoolean(false);
 	private boolean needNewRefresh = false;
@@ -574,12 +618,13 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 			for (Row i : list)
 				if (getSelectedRows().contains(i)) { selChanged = true; break; }
 			if (!list.isEmpty())
-				removeRows(list, true);
+				removeRows(list, true, true);
 			if (selChanged)
 				fireSelection();
 			if (background) {
 				if (panelRowsSize != null)
 					panelRows.setSize(panelRowsSize);
+				layout.updateOnDemand();
 				panel.getDisplay().asyncExec(new RunnableWithData<Pair<LinkedList<T>,LinkedList<Row>>>(new Pair<LinkedList<T>,LinkedList<Row>>(backgroundAdd,toUpdate)) {
 					public void run() {
 						try {
@@ -594,12 +639,14 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 							}
 							if (!data().getValue2().isEmpty()) {
 								for (int i = 0; i < 10 && !data().getValue2().isEmpty(); ++i)
-									updateRow(data().getValue2().removeFirst(), true);
+									updateRow(data().getValue2().removeFirst(), true, true);
 								panelRows.setSize(panelRowsSize);
+								layout.updateOnDemand();
 							} else {
 								for (int i = 0; i < 10 && !data().getValue1().isEmpty(); ++i)
-									createRow(data().getValue1().removeFirst(), true);
+									createRow(data().getValue1().removeFirst(), true, true);
 								panelRows.setSize(panelRowsSize);
+								layout.updateOnDemand();
 							}
 							if (!needNewRefresh && (!data().getValue2().isEmpty() || !data().getValue1().isEmpty()))
 								panel.getDisplay().asyncExec(this);
@@ -614,11 +661,12 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 				});
 			} else {
 				for (Row item : toUpdate)
-					updateRow(item, true);
+					updateRow(item, true, true);
 				for (T element : backgroundAdd)
-					createRow(element, true);
+					createRow(element, true, true);
 				if (panelRowsSize != null)
 					panelRows.setSize(panelRowsSize);
+				layout.updateOnDemand();
 				endRefresh();
 			}
 		} catch (Throwable t) {
@@ -640,45 +688,45 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 	public void refresh(T element) {
 		Row i = getRow(element); 
 		if (i != null) 
-			updateRow(i, false);
+			updateRow(i, false, false);
 	}
 	
 	public void resizeColumn(int colIndex, int width) {
 		if (colIndex >= columns.size()) return;
 		int diff = width - columns.get(colIndex).width;
 		columns.get(colIndex).width = width;
-		layout.columnResized(colIndex, diff, false);
+		layout.columnResized(colIndex, diff, false, false);
 	}
 	
-	private void createRow(T element, boolean deferResize) {
+	private void createRow(T element, boolean deferResize, boolean deferUpdate) {
 		Row row = new Row(element);
 		int index = getIndexToInsert(element);
-		layout.rowAdded(row, deferResize);
+		layout.rowAdded(row, deferResize, deferUpdate);
 		if (index != rows.size())
-			layout.rowMoved(row, rows.size(), index);
+			layout.rowMoved(row, rows.size(), index, deferUpdate);
 		rows.add(index, row);
 	}
-	private void updateRow(Row row, boolean deferResize) {
+	private void updateRow(Row row, boolean deferResize, boolean deferUpdate) {
 		row.update();
-		layout.rowUpdated(row, deferResize);
+		layout.rowUpdated(row, deferResize, deferUpdate);
 		int current = rows.indexOf(row);
 		int index = getSortIndex(row, current);
 		if (current != index)
-			moveRow(row, current, index);
+			moveRow(row, current, index, deferUpdate);
 	}
-	private void removeRow(Row r, boolean deferResize) {
-		layout.rowRemoved(r, deferResize);
+	private void removeRow(Row r, boolean deferResize, boolean deferUpdate) {
+		layout.rowRemoved(r, deferResize, deferUpdate);
 		rows.remove(r);
 		r.remove();
 	}
-	private void removeRows(List<Row> list, boolean deferResize) {
-		layout.rowsRemoved(list, deferResize);
+	private void removeRows(List<Row> list, boolean deferResize, boolean deferUpdate) {
+		layout.rowsRemoved(list, deferResize, deferUpdate);
 		rows.removeAll(list);
 		for (Row r : list)
 			r.remove();
 	}
-	private void moveRow(Row r, int srcIndex, int dstIndex) {
-		layout.rowMoved(r, srcIndex, dstIndex);
+	private void moveRow(Row r, int srcIndex, int dstIndex, boolean deferUpdate) {
+		layout.rowMoved(r, srcIndex, dstIndex, deferUpdate);
 		rows.remove(srcIndex);
 		if (dstIndex >= rows.size())
 			rows.add(r);
@@ -803,7 +851,7 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 	
 	public List<T> removeSelected() {
 		List<T> sel = getSelection();
-		removeRows(getSelectedRows(), false);
+		removeRows(getSelectedRows(), false, false);
 		return sel;
 	}
 	
@@ -837,7 +885,7 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 		}
 		if (row == null) return false;
 		if (i == index) return true;
-		moveRow(row, i, index);
+		moveRow(row, i, index, false);
 		return true;
 	}
 	
@@ -872,6 +920,7 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 		verticalBar.setPageIncrement(scrollRowsSize.y);
 		if (panelRowsSize != null)
 			refreshVerticalBar();
+		layout.updateOnDemand();
 	}
 	private void refreshVerticalBar() {
 		int h = panelRowsSize.y;
@@ -887,6 +936,7 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 		if (panelRowsScrolled != vb) {
 			panelRows.setLocation(0, -vb);
 			panelRowsScrolled = vb;
+			layout.updateOnDemand();
 		}
 	}
 	
@@ -1060,8 +1110,10 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 				if (config.fixedRowHeight <= 0) {
 					h = 0;
 					Point[] sizes = new Point[columns.size()];
+					Control[] controls = r.getControls();
+					if (controls == null) controls = r.createControls();
 					for (int i = 0; i < columns.size(); ++i) {
-						sizes[i] = r.controls[i].computeSize(columns.get(i).width, SWT.DEFAULT);
+						sizes[i] = controls[i].computeSize(columns.get(i).width, SWT.DEFAULT);
 						if (sizes[i].y > h)
 							h = sizes[i].y;
 					}
@@ -1072,7 +1124,8 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 				for (int i = 0; i < columns.size(); ++i) {
 //					int ecart = h-sizes[i].y;
 //					r.controls[i].setBounds(x, y+ecart/2, columns.get(i).width, sizes[i].y);
-					r.controls[i].setBounds(x, y, columns.get(i).width, h);
+					ondemand.setBounds(r, i, x, y, columns.get(i).width, h);
+					//r.controls[i].setBounds(x, y, columns.get(i).width, h);
 					x += columns.get(i).width + HORIZ_SPACE;
 				}
 				y += h+VERT_SPACE;
@@ -1083,16 +1136,19 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 			w-=HORIZ_SPACE;
 			panelRowsSize = new Point(w, y);
 			panelRows.setSize(panelRowsSize);
+			updateOnDemand();
 		}
 		
-		void rowAdded(Row r, boolean deferResize) {
+		void rowAdded(Row r, boolean deferResize, boolean deferUpdate) {
 			if (panelRowsSize == null) return;
 			int h;
 			if (config.fixedRowHeight <= 0) {
 				h = 0;
 				Point[] sizes = new Point[columns.size()];
+				Control[] controls = r.getControls();
+				if (controls == null) controls = r.createControls();
 				for (int i = 0; i < columns.size(); ++i) {
-					sizes[i] = r.controls[i].computeSize(columns.get(i).width, SWT.DEFAULT);
+					sizes[i] = controls[i].computeSize(columns.get(i).width, SWT.DEFAULT);
 					if (sizes[i].y > h)
 						h = sizes[i].y;
 				}
@@ -1103,19 +1159,24 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 			for (int i = 0; i < columns.size(); ++i) {
 //				int ecart = h-sizes[i].y;
 //				r.controls[i].setBounds(x, size.y+ecart/2, columns.get(i).width, sizes[i].y);
-				r.controls[i].setBounds(x, panelRowsSize.y, columns.get(i).width, h);
+				ondemand.setBounds(r, i, x, panelRowsSize.y, columns.get(i).width, h);
+//				r.controls[i].setBounds(x, panelRowsSize.y, columns.get(i).width, h);
 				x += columns.get(i).width + HORIZ_SPACE;
 			}
 			panelRowsSize.y += h+VERT_SPACE;
 			if (!deferResize)
 				panelRows.setSize(panelRowsSize);
+			if (!deferUpdate)
+				updateOnDemand();
 		}
-		void rowUpdated(Row r, boolean deferResize) {
+		void rowUpdated(Row r, boolean deferResize, boolean deferUpdate) {
 			if (config.fixedRowHeight > 0) return;
 			int h = 0;
 			Point[] sizes = new Point[columns.size()];
+			Control[] controls = r.getControls();
+			if (controls == null) controls = r.createControls();
 			for (int i = 0; i < columns.size(); ++i) {
-				sizes[i] = r.controls[i].computeSize(columns.get(i).width, SWT.DEFAULT);
+				sizes[i] = controls[i].computeSize(columns.get(i).width, SWT.DEFAULT);
 				if (sizes[i].y > h)
 					h = sizes[i].y;
 			}
@@ -1133,21 +1194,26 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 			for (int i = 0; i < columns.size(); ++i) {
 //				int ecart = h-sizes[i].y;
 //				r.controls[i].setBounds(x, y+ecart/2, columns.get(i).width, sizes[i].y);
-				r.controls[i].setBounds(x, y, columns.get(i).width, h);
+				ondemand.setBounds(r, i, x, y, columns.get(i).width, h);
+//				r.controls[i].setBounds(x, y, columns.get(i).width, h);
 				x += columns.get(i).width + HORIZ_SPACE;
 			}
 			while (it.hasNext()) {
 				Row rr = it.next();
 				for (int i = 0; i < columns.size(); ++i) {
-					Point loc = rr.controls[i].getLocation();
-					rr.controls[i].setLocation(loc.x, loc.y + diff);
+					PointInt loc = ondemand.getLocation(rr, i);
+					ondemand.setLocation(rr, i, loc.x, loc.y + diff);
+//					Point loc = rr.controls[i].getLocation();
+//					rr.controls[i].setLocation(loc.x, loc.y + diff);
 				}
 			}
 			panelRowsSize.y += diff;
 			if (!deferResize)
 				panelRows.setSize(panelRowsSize);
+			if (!deferUpdate)
+				updateOnDemand();
 		}
-		void rowMoved(Row r, int srcIndex, int dstIndex) {
+		void rowMoved(Row r, int srcIndex, int dstIndex, boolean deferUpdate) {
 			int y = VERT_SPACE;
 			Iterator<Row> it;
 			int index = 0;
@@ -1161,7 +1227,8 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 			if (index == dstIndex) {
 				int x = HORIZ_SPACE;
 				for (int i = 0; i < columns.size(); ++i) {
-					r.controls[i].setBounds(x, y, columns.get(i).width, r.height);
+					ondemand.setBounds(r, i, x, y, columns.get(i).width, r.height);
+//					r.controls[i].setBounds(x, y, columns.get(i).width, r.height);
 					x += columns.get(i).width + HORIZ_SPACE;
 				}
 				y += r.height+VERT_SPACE;
@@ -1174,7 +1241,8 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 				Row rr = it.next();
 				int x = HORIZ_SPACE;
 				for (int i = 0; i < columns.size(); ++i) {
-					rr.controls[i].setLocation(x, y);
+					ondemand.setLocation(rr, i, x, y);
+//					rr.controls[i].setLocation(x, y);
 					x += columns.get(i).width + HORIZ_SPACE;
 				}
 				y += rr.height+VERT_SPACE;
@@ -1183,13 +1251,16 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 			if (index == dstIndex) {
 				int x = HORIZ_SPACE;
 				for (int i = 0; i < columns.size(); ++i) {
-					r.controls[i].setBounds(x, y, columns.get(i).width, r.height);
+					ondemand.setBounds(r, i, x, y, columns.get(i).width, r.height);
+//					r.controls[i].setBounds(x, y, columns.get(i).width, r.height);
 					x += columns.get(i).width + HORIZ_SPACE;
 				}
 				y += r.height+VERT_SPACE;
 			}
+			if (!deferUpdate)
+				updateOnDemand();
 		}
-		void rowRemoved(Row r, boolean deferResize) {
+		void rowRemoved(Row r, boolean deferResize, boolean deferUpdate) {
 			Iterator<Row> it;
 			for (it = rows.iterator(); it.hasNext(); ) {
 				Row rr = it.next();
@@ -1198,15 +1269,19 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 			while (it.hasNext()) {
 				Row rr = it.next();
 				for (int i = 0; i < columns.size(); ++i) {
-					Point loc = rr.controls[i].getLocation();
-					rr.controls[i].setLocation(loc.x, loc.y - r.height - 1);
+					PointInt loc = ondemand.getLocation(rr, i);
+					ondemand.setLocation(rr, i, loc.x, loc.y - r.height - 1);
+//					Point loc = rr.controls[i].getLocation();
+//					rr.controls[i].setLocation(loc.x, loc.y - r.height - 1);
 				}
 			}
 			panelRowsSize.y -= r.height+VERT_SPACE;
 			if (!deferResize)
 				panelRows.setSize(panelRowsSize);
+			if (!deferUpdate)
+				updateOnDemand();
 		}
-		void rowsRemoved(List<Row> list, boolean deferResize) {
+		void rowsRemoved(List<Row> list, boolean deferResize, boolean deferUpdate) {
 			Iterator<Row> it;
 			int diff = 0;
 			for (it = rows.iterator(); it.hasNext(); ) {
@@ -1216,17 +1291,21 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 				} else {
 					if (diff != 0)
 						for (int i = 0; i < columns.size(); ++i) {
-							Point loc = r.controls[i].getLocation();
-							r.controls[i].setLocation(loc.x, loc.y + diff);
+							PointInt loc = ondemand.getLocation(r, i);
+							ondemand.setLocation(r, i, loc.x, loc.y + diff);
+//							Point loc = r.controls[i].getLocation();
+//							r.controls[i].setLocation(loc.x, loc.y + diff);
 						}
 				}
 			}
 			panelRowsSize.y += diff;
 			if (!deferResize)
 				panelRows.setSize(panelRowsSize);
+			if (!deferUpdate)
+				updateOnDemand();
 		}
 		
-		void columnResized(int colIndex, int diff, boolean deferResize) {
+		void columnResized(int colIndex, int diff, boolean deferResize, boolean deferUpdate) {
 			if (diff == 0) return;
 			Composite p = columns.get(colIndex).header.getParent();
 			p.layout(true, false);
@@ -1234,10 +1313,11 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 			int y = VERT_SPACE;
 			for (Row r : rows) {
 				int x = HORIZ_SPACE;
-				for (int i = 0; i < r.controls.length; ++i) {
+				for (int i = 0; i < columns.size(); ++i) {
 					int w = columns.get(i).width;
 					if (i >= colIndex) {
-						r.controls[i].setBounds(x, y, w, r.height);
+						ondemand.setBounds(r, i, x, y, w, r.height);
+//						r.controls[i].setBounds(x, y, w, r.height);
 					}
 					x += w + HORIZ_SPACE;
 				}
@@ -1246,6 +1326,13 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 			panelRowsSize.x += diff;
 			if (!deferResize)
 				panelRows.setSize(panelRowsSize);
+			if (!deferUpdate)
+				updateOnDemand();
+		}
+		
+		void updateOnDemand() {
+			if (panelRowsSize != null)
+				ondemand.update(new RectangleInt(0, panelRowsScrolled, panelRowsSize.x, scrollRowsSize.y));
 		}
 	}
 	
@@ -1383,7 +1470,9 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 					int index = columns.indexOf(header.col);
 					int w = 0;
 					for (Row r : rows) {
-						int x = r.controls[index].computeSize(SWT.DEFAULT, SWT.DEFAULT, true).x;
+						Control[] controls = r.getControls();
+						if (controls == null) controls = r.createControls();
+						int x = controls[index].computeSize(SWT.DEFAULT, SWT.DEFAULT, true).x;
 						if (x > w)
 							w = x;
 					}

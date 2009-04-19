@@ -34,7 +34,12 @@ public class ChunkedTransfer extends Transfer {
 				total -= step;
 				progress.progress(step);
 				long now = System.currentTimeMillis();
-				progress.setSubDescription(StringUtil.sizeString(read/((now-start)/1000))+"/s");
+				now = ((now-start)/1000);
+				if (now > 0)
+					now = read/now;
+				else
+					now = read;
+				progress.setSubDescription(StringUtil.sizeString(now)+"/s");
 			}
 		} while (true);
 		if (total > 0 && progress != null)
