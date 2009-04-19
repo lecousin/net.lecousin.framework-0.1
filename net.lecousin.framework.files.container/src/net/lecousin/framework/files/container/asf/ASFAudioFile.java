@@ -1,21 +1,14 @@
-package net.lecousin.framework.files.audio.asf;
+package net.lecousin.framework.files.container.asf;
 
-import java.io.InputStream;
 import java.net.URI;
 
 import net.lecousin.framework.files.FileType;
 import net.lecousin.framework.files.FileTypeRegistry;
 import net.lecousin.framework.files.audio.AudioFile;
 
-public class ASFFile extends AudioFile {
+public class ASFAudioFile extends AudioFile {
 
-	public static ASFFile detect(URI uri, InputStream stream) {
-		ASFFormat asf = ASFFormat.read(stream);
-		if (asf == null) return null;
-		return new ASFFile(uri, asf);
-	}
-	
-	private ASFFile(URI uri, ASFFormat info) {
+	ASFAudioFile(URI uri, ASFFormat info) {
 		super(uri, FILE_TYPE, info);
 	}
 	

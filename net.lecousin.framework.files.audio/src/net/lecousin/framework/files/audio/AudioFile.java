@@ -5,7 +5,6 @@ import java.net.URI;
 import net.lecousin.framework.files.FileType;
 import net.lecousin.framework.files.FileTypeRegistry;
 import net.lecousin.framework.files.TypedFile;
-import net.lecousin.framework.files.audio.asf.ASFFile;
 import net.lecousin.framework.files.audio.cda.CDAFile;
 import net.lecousin.framework.files.audio.mp3.MP3File;
 import net.lecousin.framework.files.audio.wav.WAVFile;
@@ -26,13 +25,11 @@ public abstract class AudioFile extends TypedFile {
 	
 	public static void registerTypes(FileTypeRegistry registry) {
 		FILE_TYPE = registry.register(null, FILE_TYPE_NAME);
-		ASFFile.registerTypes(registry);
 		CDAFile.registerTypes(registry);
 		MP3File.registerTypes(registry);
 		WAVFile.registerTypes(registry);
 		types = new FileType[] {
 			FILE_TYPE,
-			ASFFile.FILE_TYPE,
 			CDAFile.FILE_TYPE,
 			MP3File.FILE_TYPE,
 			WAVFile.FILE_TYPE,
