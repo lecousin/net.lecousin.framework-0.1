@@ -1,8 +1,10 @@
 package net.lecousin.framework.ui.eclipse.control.list;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.lecousin.framework.Pair;
 import net.lecousin.framework.Triple;
 import net.lecousin.framework.event.Event;
 import net.lecousin.framework.event.Event.Listener;
@@ -64,17 +66,32 @@ public class AdvancedList<T> extends Composite {
 		}
 		protected abstract void createViewer();
 	}
-	private class TableView extends View {
-		private ColumnProvider<T>[] tableColumns;
-		private TableConfig config;
+	class TableView extends View {
+		List<Pair<String,List<ColumnProvider<T>>>> allColumns;
+		List<String> columnsShown;
+		TableConfig config;
+		@SuppressWarnings("unchecked")
 		@Override
 		protected void createViewer() {
-			viewer = new LCTable<T>(AdvancedList.this, contentProvider, tableColumns, config);
+			List<ColumnProvider<T>> columns = new ArrayList<ColumnProvider<T>>(columnsShown.size());
+			for (String name : columnsShown) {
+				for (Pair<String,List<ColumnProvider<T>>> p : allColumns) {
+					boolean found = false;
+					for (ColumnProvider<T> c : p.getValue2())
+						if (c.getTitle().equals(name)) {
+							columns.add(c);
+							found = true;
+							break;
+						}
+					if (found) break;
+				}
+			}
+			viewer = new LCTable<T>(AdvancedList.this, contentProvider, columns.toArray(new ColumnProvider[columns.size()]), config);
 		}
 	}
-	private class MosaicView extends View {
-		private MosaicProvider<T> mosaicProvider;
-		private MosaicConfig config;
+	class MosaicView extends View {
+		MosaicProvider<T> mosaicProvider;
+		MosaicConfig config;
 		@Override
 		protected void createViewer() {
 			viewer = new LCMosaic<T>(AdvancedList.this, contentProvider, mosaicProvider, config);
@@ -159,10 +176,11 @@ public class AdvancedList<T> extends Composite {
 				view.viewer.addKeyListener(listener);
 	}
 	
-	public void addTableView(String name, ColumnProvider<T>[] tableColumns, TableConfig config) {
+	public void addTableView(String name, TableConfig config, List<Pair<String,List<ColumnProvider<T>>>> allColumns, List<String> columnsShown) {
 		TableView view = new TableView();
 		view.name = name;
-		view.tableColumns = tableColumns;
+		view.allColumns = allColumns;
+		view.columnsShown = columnsShown;
 		view.config = config;
 		views.add(view);
 		viewAdded.fire(view);

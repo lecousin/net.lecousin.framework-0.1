@@ -79,6 +79,7 @@ public class FlatPopupMenu extends PopupMenu {
 			label.setBackground(ColorUtil.get(82, 110, 166));
 			label.setForeground(ColorUtil.getWhite());
 			label.setText(" " + title);
+			setDialogMoverControl(label);
 			UIControlUtil.setFontStyle(label, SWT.ITALIC | SWT.BOLD);
 			gd = new GridData();
 			gd.horizontalAlignment = SWT.FILL;

@@ -1,15 +1,19 @@
 package net.lecousin.framework.ui.eclipse.control.list;
 
+import net.lecousin.framework.Pair;
 import net.lecousin.framework.event.Event.Listener;
+import net.lecousin.framework.ui.eclipse.Local;
 import net.lecousin.framework.ui.eclipse.UIUtil;
 import net.lecousin.framework.ui.eclipse.control.Radio;
+import net.lecousin.framework.ui.eclipse.control.UIControlUtil;
+import net.lecousin.framework.ui.eclipse.dialog.MyDialog.Orientation;
 import net.lecousin.framework.ui.eclipse.graphics.ColorUtil;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.RowLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
@@ -45,10 +49,10 @@ class AdvancedListController<T> extends Composite {
 		controlPanel.setLayoutData(gd);
 		controlPanel.setSize(10, 10);
 		controlPanel.setBackground(bgColor);
-		RowLayout rlayout = new RowLayout(SWT.HORIZONTAL);
-		rlayout.marginHeight = 0;
-		rlayout.marginWidth = 0;
-		controlPanel.setLayout(rlayout);
+//		RowLayout rlayout = new RowLayout(SWT.HORIZONTAL);
+//		rlayout.marginHeight = 0;
+//		rlayout.marginWidth = 0;
+//		controlPanel.setLayout(rlayout);
 		
 		list.viewAdded.addListener(new Listener<AdvancedList<T>.View>() {
 			public void fire(AdvancedList<T>.View view) {
@@ -88,5 +92,16 @@ class AdvancedListController<T> extends Composite {
 	
 	void viewChanged(AdvancedList<T>.View view) {
 		radioViews.setSelection(view.name);
+		UIControlUtil.clear(controlPanel);
+		if (view instanceof AdvancedList.TableView) {
+			UIUtil.gridLayout(controlPanel, 1);
+			UIUtil.newButton(controlPanel, Local.Select_columns+"...", SWT.NONE, new Listener<Pair<Button,AdvancedList<T>.TableView>>() {
+				@SuppressWarnings("unchecked")
+				public void fire(Pair<Button,AdvancedList<T>.TableView> event) {
+					LCTable_SelectColumnsDialog<T> dlg = new LCTable_SelectColumnsDialog<T>(getShell(), (LCTable<T>)event.getValue2().viewer, event.getValue2().allColumns, event.getValue2().columnsShown);
+					dlg.openRelative(event.getValue1(), Orientation.BOTTOM, true, true);
+				}
+			}, (AdvancedList<T>.TableView)view);
+		}
 	}
 }

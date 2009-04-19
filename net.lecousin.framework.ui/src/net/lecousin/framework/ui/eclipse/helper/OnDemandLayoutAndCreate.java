@@ -202,4 +202,17 @@ public class OnDemandLayoutAndCreate {
 		Rectangle r = controls[controlIndex].getBounds();
 		return new RectangleInt(r.x, r.y, r.width, r.height);
 	}
+	
+	public void reset(ControlsContainer container) {
+		List<Child> children = updates.remove(container);
+		if (children == null) return;
+		if (container.getControls() == null) return;
+		for (Child child : children) {
+			RectangleInt nr = getNewBounds(child);
+			child.setBounds(nr.x, nr.y, nr.width, nr.height);
+		}
+	}
+	public void remove(ControlsContainer container) {
+		updates.remove(container);
+	}
 }

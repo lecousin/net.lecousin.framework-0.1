@@ -12,6 +12,7 @@ public enum Local {
 	Ok("Ok", "Ok"),
 	on("on", "sur"),
 	Page("Page", "page"),
+	Select_columns("Select columns", "Sélectionner les colonnes"),
 	to__date("to", "au"),
 	to__time("to", "à"),
 	Yes("Yes", "Oui"),

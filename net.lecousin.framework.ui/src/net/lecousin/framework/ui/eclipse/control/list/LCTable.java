@@ -398,12 +398,28 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 			return true;
 		}
 		void columnAdded(Column c, boolean deferResize, boolean deferUpdate) {
-			if (_controls == null) return;
-			Control[] newControls = new Control[_controls.length+1];
-			System.arraycopy(_controls, 0, newControls, 0, _controls.length);
-			_controls = newControls;
-			_controls[_controls.length-1] = createControl(c, _controls.length-1);
-			layout.rowUpdated(this, deferResize, deferUpdate);
+			if (_controls != null) {
+				Control[] newControls = new Control[_controls.length+1];
+				System.arraycopy(_controls, 0, newControls, 0, _controls.length);
+				_controls = newControls;
+				_controls[_controls.length-1] = createControl(c, _controls.length-1);
+			}
+			layout.rowColumnsUpdated(this, deferResize, deferUpdate);
+		}
+		void columnRemoved(int index, boolean deferResize, boolean deferUpdate) {
+			ondemand.remove(this);
+			if (_controls != null) {
+				Control[] newControls = new Control[_controls.length-1];
+				for (int i = 0; i < _controls.length; ++i) {
+					if (i == index) {
+						dispose(_controls[i]);
+						continue;
+					}
+					newControls[i-(i>index?1:0)] = _controls[i];
+				}
+				_controls = newControls;
+			}
+			layout.rowColumnsUpdated(this, deferResize, deferUpdate);
 		}
 	}
 	
@@ -572,6 +588,31 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 		}
 		for (Row r : rows)
 			r.columnAdded(c, false, false);
+		if (panelRowsSize != null)
+			panelRows.setSize(panelRowsSize);
+		contentPanel.layout(true, true);
+		UIControlUtil.resize(contentPanel);
+		layout.updateOnDemand();
+	}
+	public void removeColumn(ColumnProvider<T> provider) {
+		Column col = null;
+		int index;
+		for (index = 0; index < columns.size(); ++index) {
+			Column c = columns.get(index);
+			if (c.provider == provider) { col = c; break; }
+		}
+		if (col == null) return;
+		columns.remove(col);
+		col.header.dispose();
+		GridLayout l = (GridLayout)contentPanel.getLayout();
+		l.numColumns--;
+		GridData gd = (GridData)scrollRows.getLayoutData();
+		gd.horizontalSpan--;
+		if (panelRowsSize != null) {
+			panelRowsSize.x -= col.width + HORIZ_SPACE;
+		}
+		for (Row r : rows)
+			r.columnRemoved(index, false, false);
 		if (panelRowsSize != null)
 			panelRows.setSize(panelRowsSize);
 		contentPanel.layout(true, true);
@@ -1299,6 +1340,61 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 				}
 			}
 			panelRowsSize.y += diff;
+			if (!deferResize)
+				panelRows.setSize(panelRowsSize);
+			if (!deferUpdate)
+				updateOnDemand();
+		}
+		void rowColumnsUpdated(Row r, boolean deferResize, boolean deferUpdate) {
+			int h;
+			if (config.fixedRowHeight > 0) {
+				h = config.fixedRowHeight;
+			} else {
+				h = 0;
+				Point[] sizes = new Point[columns.size()];
+				Control[] controls = r.getControls();
+				if (controls == null) controls = r.createControls();
+				for (int i = 0; i < columns.size(); ++i) {
+					sizes[i] = controls[i].computeSize(columns.get(i).width, SWT.DEFAULT);
+					if (sizes[i].y > h)
+						h = sizes[i].y;
+				}
+			}
+			int y = VERT_SPACE;
+			Iterator<Row> it;
+			for (it = rows.iterator(); it.hasNext(); ) {
+				Row rr = it.next();
+				if (rr == r) break;
+				y += rr.height+VERT_SPACE;
+			}
+			if (r.height != h) {
+				int diff = h - r.height;
+				r.height = h;
+				int x = HORIZ_SPACE;
+				for (int i = 0; i < columns.size(); ++i) {
+	//				int ecart = h-sizes[i].y;
+	//				r.controls[i].setBounds(x, y+ecart/2, columns.get(i).width, sizes[i].y);
+					ondemand.setBounds(r, i, x, y, columns.get(i).width, h);
+	//				r.controls[i].setBounds(x, y, columns.get(i).width, h);
+					x += columns.get(i).width + HORIZ_SPACE;
+				}
+				while (it.hasNext()) {
+					Row rr = it.next();
+					for (int i = 0; i < columns.size(); ++i) {
+						PointInt loc = ondemand.getLocation(rr, i);
+						ondemand.setLocation(rr, i, loc.x, loc.y + diff);
+	//					Point loc = rr.controls[i].getLocation();
+	//					rr.controls[i].setLocation(loc.x, loc.y + diff);
+					}
+				}
+				panelRowsSize.y += diff;
+			} else {
+				int x = HORIZ_SPACE;
+				for (int i = 0; i < columns.size(); ++i) {
+					ondemand.setBounds(r, i, x, y, columns.get(i).width, h);
+					x += columns.get(i).width + HORIZ_SPACE;
+				}
+			}
 			if (!deferResize)
 				panelRows.setSize(panelRowsSize);
 			if (!deferUpdate)

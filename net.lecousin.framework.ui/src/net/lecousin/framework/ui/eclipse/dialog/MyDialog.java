@@ -6,6 +6,10 @@ import net.lecousin.framework.thread.RunnableWithData;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.MouseMoveListener;
+import org.eclipse.swt.events.MouseTrackListener;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.events.ShellListener;
 import org.eclipse.swt.graphics.Point;
@@ -458,5 +462,40 @@ public abstract class MyDialog extends Dialog {
 				((MyDialog)o).resize();
 		} else
 			resizeDialog(c.getParent());
+	}
+	
+	public void setDialogMoverControl(Control c) {
+		DialogMover listener = new DialogMover();
+		c.addMouseListener(listener);
+		c.addMouseTrackListener(listener);
+		c.addMouseMoveListener(listener);
+	}
+	private class DialogMover implements MouseListener, MouseTrackListener, MouseMoveListener {
+		private Point movingPoint = null;
+		public void mouseDoubleClick(MouseEvent e) {
+		}
+		public void mouseDown(MouseEvent e) {
+			movingPoint = ((Control)e.widget).toDisplay(e.x, e.y);
+		}
+		public void mouseUp(MouseEvent e) {
+			movingPoint = null;
+		}
+		public void mouseEnter(MouseEvent e) {
+		}
+		public void mouseExit(MouseEvent e) {
+			movingPoint = null;
+		}
+		public void mouseHover(MouseEvent e) {
+		}
+		public void mouseMove(MouseEvent e) {
+			if (movingPoint != null) {
+				Point pt = ((Control)e.widget).toDisplay(e.x, e.y);
+				Point loc = shell.getLocation();
+				loc.x += pt.x-movingPoint.x;
+				loc.y += pt.y-movingPoint.y;
+				shell.setLocation(loc);
+				movingPoint = pt;
+			}
+		}
 	}
 }

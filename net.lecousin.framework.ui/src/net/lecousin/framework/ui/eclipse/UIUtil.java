@@ -9,7 +9,6 @@ import net.lecousin.framework.event.Event;
 import net.lecousin.framework.event.Event.Listener;
 import net.lecousin.framework.event.Event.ListenerData;
 import net.lecousin.framework.thread.RunnableWithData;
-import net.lecousin.framework.ui.eclipse.control.BorderStyle;
 import net.lecousin.framework.ui.eclipse.control.ImageAndTextButton;
 import net.lecousin.framework.ui.eclipse.control.LabelButton;
 import net.lecousin.framework.ui.eclipse.control.Radio;
