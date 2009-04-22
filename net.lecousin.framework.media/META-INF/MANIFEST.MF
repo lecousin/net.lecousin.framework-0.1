@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: lecousin framework - Media
 Bundle-SymbolicName: net.lecousin.framework.media;singleton:=true
-Bundle-Version: 0.1.0
+Bundle-Version: 0.1.1
 Bundle-Activator: net.lecousin.framework.media.internal.EclipsePlugin
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,

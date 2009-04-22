@@ -1,10 +1,14 @@
 package net.lecousin.framework.ui.eclipse;
 
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.DirectColorModel;
 import java.awt.image.IndexColorModel;
 import java.awt.image.WritableRaster;
+
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.PaletteData;
@@ -67,6 +71,15 @@ public class SWT_AWT_Util {
 		      return bufferedImage;
 		    }
 		  }
+	  
+	  public static ImageData convertToSWT(Icon icon) {
+		  if (icon instanceof ImageIcon) {
+			  Image i = ((ImageIcon)icon).getImage();
+			  if (i instanceof BufferedImage)
+				  return convertToSWT((BufferedImage)i);
+		  }
+		  return null;
+	  }
 
 		  public static ImageData convertToSWT(BufferedImage bufferedImage) {
 		    if (bufferedImage.getColorModel() instanceof DirectColorModel) {
@@ -78,13 +91,15 @@ public class SWT_AWT_Util {
 		          bufferedImage.getHeight(), colorModel.getPixelSize(),
 		          palette);
 		      WritableRaster raster = bufferedImage.getRaster();
-		      int[] pixelArray = new int[3];
+		      int[] pixelArray = new int[raster.getNumBands()];
 		      for (int y = 0; y < data.height; y++) {
 		        for (int x = 0; x < data.width; x++) {
 		          raster.getPixel(x, y, pixelArray);
 		          int pixel = palette.getPixel(new RGB(pixelArray[0],
 		              pixelArray[1], pixelArray[2]));
 		          data.setPixel(x, y, pixel);
+		          if (pixelArray.length >= 4)
+		        	  data.setAlpha(x, y, pixelArray[3]);
 		        }
 		      }
 		      return data;

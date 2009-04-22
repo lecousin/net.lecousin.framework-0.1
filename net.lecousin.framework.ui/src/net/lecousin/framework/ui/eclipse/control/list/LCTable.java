@@ -26,6 +26,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.dnd.DragSource;
 import org.eclipse.swt.dnd.DragSourceEvent;
+import org.eclipse.swt.dnd.DropTarget;
+import org.eclipse.swt.dnd.DropTargetListener;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
@@ -183,6 +185,9 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 				LCTable.this.drags.clear(); LCTable.this.drags = null;
 				for (DragSource ds : dragSources.values())
 					ds.dispose();
+				for (DropTarget dt : drops)
+					dt.dispose();
+				LCTable.this.drops.clear(); LCTable.this.drops = null; 
 				LCTable.this.dragSources.clear(); LCTable.this.dragSources = null;
 				LCTable.this.elementChangedEvents.clear(); LCTable.this.elementChangedEvents = null;
 				LCTable.this.elementChangedListener = null;
@@ -555,6 +560,14 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 				disposeDrag(child);
 	}
 	
+	private List<DropTarget> drops = new LinkedList<DropTarget>();
+	public void addDropSupport(int style, Transfer[] transfers, DropTargetListener listener) {
+		DropTarget target = new DropTarget(panel, style);
+		target.setTransfer(transfers);
+		target.addDropListener(listener);
+		drops.add(target);
+	}
+	
 	
 	public void add(T element) {
 		createRow(element, false, false);
@@ -572,6 +585,10 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 		removeRow(i, false, false); 
 		if (selected) fireSelection(); 
 		return true;
+	}
+	public void clear() {
+		for (T e : new ArrayList<T>(getElements()))
+			remove(e);
 	}
 	
 	public void addColumn(ColumnProvider<T> provider) {
@@ -626,6 +643,12 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 	private LinkedList<T> backgroundAdd = new LinkedList<T>();
 	
 	public void refresh(boolean background) {
+		refresh(background, contentProvider.getElements());
+	}
+	public void setContent(Iterable<T> elements, boolean background) {
+		refresh(background, elements);
+	}
+	private void refresh(boolean background, Iterable<T> elements) {
 		synchronized (isRefreshing) {
 			if (panel.isDisposed()) return;
 			if (isRefreshing.get()) {
@@ -639,7 +662,7 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 			backgroundAdd.clear();
 			ArrayList<Row> list = new ArrayList<Row>(rows);
 			LinkedList<Row> toUpdate = new LinkedList<Row>();
-			for (T element : contentProvider.getElements()) {
+			for (T element : elements) {
 				if (element == null) continue;
 				Row item = null;
 				for (Iterator<Row> it = list.iterator(); it.hasNext(); ) {

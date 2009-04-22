@@ -31,12 +31,12 @@ public class SimpleCrossButton extends Canvas implements PaintListener, MouseTra
 		addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(DisposeEvent e) {
 				SimpleCrossButton.this.removeDisposeListener(this);
-				SimpleCrossButton.this.hover = null;
-				SimpleCrossButton.this.click.free();
-				SimpleCrossButton.this.click = null;
 				SimpleCrossButton.this.removePaintListener(SimpleCrossButton.this);
 				SimpleCrossButton.this.removeMouseListener(SimpleCrossButton.this);
 				SimpleCrossButton.this.removeMouseTrackListener(SimpleCrossButton.this);
+				SimpleCrossButton.this.hover = null;
+				SimpleCrossButton.this.click.free();
+				SimpleCrossButton.this.click = null;
 			}
 		});
 	}
@@ -72,6 +72,7 @@ public class SimpleCrossButton extends Canvas implements PaintListener, MouseTra
 	public void mouseDown(MouseEvent e) {
 	}
 	public void mouseUp(MouseEvent e) {
+		if (isDisposed()) return;
 		if (e.button == 1)
 			click.fire(this);
 	}

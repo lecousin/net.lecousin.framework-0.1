@@ -61,6 +61,7 @@ public class Event<T> {
             	handleListenerError(t);
             }
         }
+        if (fireListeners == null) return;
     	ArrayList<Runnable> list2 = new ArrayList<Runnable>(fireListeners);
         for (Iterator<Runnable> it = list2.iterator(); it.hasNext(); ) {
         	Runnable listener = it.next();

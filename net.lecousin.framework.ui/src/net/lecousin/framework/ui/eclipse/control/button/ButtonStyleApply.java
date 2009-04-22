@@ -48,14 +48,14 @@ public class ButtonStyleApply implements PaintListener, MouseListener, MouseTrac
 		entered++;
 		if (!hover) {
 			hover = true;
-			if (!control.isDisposed())
+			if (control != null && !control.isDisposed())
 				control.redraw();
 		}
 	}
 	public void mouseExit(MouseEvent e) {
 		if (--entered == 0 && hover) {
 			hover = false;
-			if (!control.isDisposed())
+			if (control != null && !control.isDisposed())
 				control.redraw();
 		}
 	}
@@ -63,12 +63,12 @@ public class ButtonStyleApply implements PaintListener, MouseListener, MouseTrac
 	}
 	public void mouseDown(MouseEvent e) {
 		pushed = true;
-		if (!control.isDisposed())
+		if (control != null && !control.isDisposed())
 			control.redraw();
 	}
 	public void mouseUp(MouseEvent e) {
 		pushed = false;
-		if (!control.isDisposed())
+		if (control != null && !control.isDisposed())
 			control.redraw();
 	}
 	public void mouseDoubleClick(MouseEvent e) {

@@ -29,7 +29,7 @@ public class ImageAndTextButton extends Composite implements PaintListener {
         super.setBackground(parent.getBackground());
         
         GridLayout layout = new GridLayout();
-        layout.numColumns = 2;
+        layout.numColumns = icon != null ? 2 : 1;
         layout.verticalSpacing = 0;
         layout.horizontalSpacing = SPACE;
         layout.marginHeight = MARGIN + marginHeight;
@@ -37,7 +37,7 @@ public class ImageAndTextButton extends Composite implements PaintListener {
         setLayout(layout);
         GridData gd;
         
-        this.icon = UIUtil.newImage(this, icon);
+        this.icon = icon != null ? UIUtil.newImage(this, icon) : null;
         this.text = UIUtil.newLabel(this, text);
         gd = new GridData();
         gd.grabExcessHorizontalSpace = true;

@@ -85,6 +85,9 @@ public class FileSystemUtil {
 		copyDirectory(new File(src), new File(dst), progress, amount);
 	}
 	public static void copyDirectory(File src, File dst, WorkProgress progress, int amount) throws IOException {
+		copyDirectory(src, dst, null, progress, amount);
+	}
+	public static void copyDirectory(File src, File dst, Filter filter, WorkProgress progress, int amount) throws IOException {
 		dst.mkdirs();
 		if (!src.exists())
 			throw new IOException("Directory '" + src.getAbsolutePath() + "' doesn't exist.");
@@ -98,10 +101,12 @@ public class FileSystemUtil {
 		List<File> subdirs = new LinkedList<File>();
 		List<File> files = new LinkedList<File>();
 		for (File file : members)
-			if (file.isDirectory())
-				subdirs.add(file);
-			else
-				files.add(file);
+			if (filter == null || filter.accept(file)) {
+				if (file.isDirectory())
+					subdirs.add(file);
+				else
+					files.add(file);
+			}
 		int nb = subdirs.size()*3+files.size();
 		int total = amount;
 		for (File file : files) {
@@ -121,13 +126,23 @@ public class FileSystemUtil {
 		deleteDirectory(new File(dir));
 	}
 	public static void deleteDirectory(File dir) {
+		deleteDirectory(dir, null);
+	}
+	public static void deleteDirectory(File dir, Filter filter) {
 		if (!dir.exists()) return;
-		for (File f : dir.listFiles())
+		for (File f : dir.listFiles()) {
+			if (filter != null && !filter.accept(f)) continue;
 			if (f.isDirectory())
 				deleteDirectory(f);
 			else
 				f.delete();
-		dir.delete();
+		}
+		if (filter == null || filter.accept(dir))
+			dir.delete();
+	}
+	
+	public static interface Filter {
+		public boolean accept(File file);
 	}
 	
 	public static class Drive {
