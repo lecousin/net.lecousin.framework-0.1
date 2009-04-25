@@ -28,7 +28,7 @@ public abstract class XmlUtil {
 	throws ParserConfigurationException, SAXException, IOException {
 	    return loadFile(new FileInputStream(file));
 	}
-	public static Element loadFile(InputStream stream) 
+	public static synchronized Element loadFile(InputStream stream) 
 	throws ParserConfigurationException, SAXException, IOException {
 		if (stream.available() == 0)
 			return null;
@@ -215,6 +215,31 @@ public abstract class XmlUtil {
     			str.append('>');
     		else if (special.equalsIgnoreCase("amp"))
     			str.append('&');
+    		else if (special.equalsIgnoreCase("eacute"))
+    			str.append('é');
+    		else if (special.equalsIgnoreCase("egrave"))
+    			str.append('è');
+    		else if (special.equalsIgnoreCase("ecirc"))
+    			str.append('ê');
+    		else if (special.equalsIgnoreCase("icirc"))
+    			str.append('î');
+    		else if (special.equalsIgnoreCase("acirc"))
+    			str.append('â');
+    		else if (special.equalsIgnoreCase("ocirc"))
+    			str.append('ô');
+    		else if (special.equalsIgnoreCase("ucirc"))
+    			str.append('û');
+    		else if (special.equalsIgnoreCase("agrave"))
+    			str.append('à');
+    		else if (special.equalsIgnoreCase("ccedil"))
+    			str.append('ç');
+    		else if (special.equalsIgnoreCase("oelig"))
+    			str.append("oe");
+    		else if (special.equalsIgnoreCase("copy"))
+    			str.append("(c)");
+    		else if (special.equalsIgnoreCase("nbsp"))
+    			str.append(' ');
+    		// TODO continue with http://en.wikipedia.org/wiki/List_of_XML_and_HTML_character_entity_references
     		else
     			if (Log.warning(XmlUtil.class)) Log.warning(XmlUtil.class, "invalid XML string: &" + special + "; is not a known special character.");
     	} while (i < value.length());

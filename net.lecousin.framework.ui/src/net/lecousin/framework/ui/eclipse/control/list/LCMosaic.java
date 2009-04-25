@@ -106,11 +106,11 @@ public class LCMosaic<T> implements LCViewer<T,Composite> {
 	private MosaicConfig config;
 	
 	private List<Event<T>> addElementEvents = new LinkedList<Event<T>>();
-	private Listener<T> addElementListener = new Listener<T>() { public void fire(T element) { createRow(element); updatePanel(); } };
+	private Listener<T> addElementListener = new Listener<T>() { public void fire(T element) { UIUtil.execAsync(panel, new RunnableWithData<T>(element) { public void run() { createRow(data()); updatePanel(); }}); } };
 	private List<Event<T>> removeElementEvents = new LinkedList<Event<T>>();
-	private Listener<T> removeElementListener = new Listener<T>() { public void fire(T element) { MosaicItem i = getItem(element); if (i != null) { removeRow(i); updatePanel(); } } };
+	private Listener<T> removeElementListener = new Listener<T>() { public void fire(T element) { UIUtil.execAsync(panel, new RunnableWithData<T>(element) { public void run() { MosaicItem i = getItem(data()); if (i != null) { removeRow(i); updatePanel(); } }}); } };
 	private List<Event<T>> elementChangedEvents = new LinkedList<Event<T>>();
-	private Listener<T> elementChangedListener = new Listener<T>() { public void fire(T element) { MosaicItem i = getItem(element); if (i != null) { updateRow(i); updatePanel(); } } };
+	private Listener<T> elementChangedListener = new Listener<T>() { public void fire(T element) { UIUtil.execAsync(panel, new RunnableWithData<T>(element) { public void run() { MosaicItem i = getItem(data()); if (i != null) { updateRow(i); updatePanel(); } }}); } };
 	private List<Event<?>> contentChangedEvents = new LinkedList<Event<?>>();
 	private Runnable contentChangedListener = new Runnable() { public void run() { refresh(true); } };
 	

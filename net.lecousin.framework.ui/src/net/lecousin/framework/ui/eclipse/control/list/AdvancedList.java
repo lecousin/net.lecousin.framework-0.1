@@ -229,7 +229,11 @@ public class AdvancedList<T> extends Composite {
 	public List<T> getSelection() { return currentView.viewer.getSelection(); }
 	
 	private void updateHeader() {
-		controller.refresh(titleProvider.getTitle());
+		controller.getDisplay().asyncExec(new Runnable() {
+			public void run() {
+				controller.refresh(titleProvider.getTitle());
+			}
+		});
 	}
 	
 	private List<Triple<Integer,Transfer[],DragListener<T>>> drags = new LinkedList<Triple<Integer,Transfer[],DragListener<T>>>();

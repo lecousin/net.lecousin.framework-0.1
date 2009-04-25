@@ -127,7 +127,6 @@ public class EmbeddedWorkProgressControl implements Listener<WorkProgress> {
 	}
 
 	private boolean refreshFired = false;
-	private long lastTimeRefreshed = 0;
 	public void fire(WorkProgress event) {
 		if (container.isDisposed()) return;
 		if (timeEstimate == null)
@@ -135,8 +134,6 @@ public class EmbeddedWorkProgressControl implements Listener<WorkProgress> {
 		if (Thread.currentThread() == container.getDisplay().getThread()) {
 			refresher.run();
 		} else {
-			if (lastTimeRefreshed == 0 || System.currentTimeMillis() - lastTimeRefreshed > 5000)
-				UIUtil.runPendingEvents(container.getDisplay());
 			synchronized (this) {
 				if (refreshFired) return;
 				refreshFired = true;
@@ -145,7 +142,6 @@ public class EmbeddedWorkProgressControl implements Listener<WorkProgress> {
 				public void run() {
 					synchronized(EmbeddedWorkProgressControl.this) {
 						refreshFired = false;
-						lastTimeRefreshed = System.currentTimeMillis();
 					}
 					refresher.run();
 				}				

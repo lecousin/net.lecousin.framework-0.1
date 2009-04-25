@@ -22,15 +22,16 @@ public abstract class Transfer {
 	public abstract void read(OutputStream out, WorkProgress progress, int amount) throws IOException;
 	
 	protected void read(long size, OutputStream out, WorkProgress progress, int amount) throws IOException {
-		int bufSize = size > 65536 ? 65536 : (int)size;
+		int bufSize = size <= 0 || size > 65536 ? 65536 : (int)size;
 		byte[] buffer = new byte[bufSize];
 		long pos = 0;
 		int amountUsed = 0;
 		long start = System.currentTimeMillis();
 		do {
-			int maxSize = size - pos > bufSize ? bufSize : (int)(size - pos);
-			int nb = stream.read(buffer, 0, maxSize);
-			if (nb > 0 && progress != null) {
+			int maxSize = size <= 0 || size - pos > bufSize ? bufSize : (int)(size - pos);
+			int nb;
+			nb = stream.read(buffer, 0, maxSize);
+			if (nb > 0 && progress != null && size > 0) {
 				int posAmount = (int)((long)amount*(pos+nb)/size);
 				if (posAmount > amountUsed) {
 					progress.progress(posAmount-amountUsed);
@@ -45,15 +46,17 @@ public abstract class Transfer {
 			if (Log.debug(this))
 				Log.debug(this, "Data read: read=" + nb + ", current=" + pos + ", total=" + (pos+nb) + ", expected=" + size);
 			if (nb == -1) {
-				if (Log.error(this))
-					Log.error(this, "End of stream reached before end of data.");
+				if (size > 0) {
+					if (Log.error(this))
+						Log.error(this, "End of stream reached before end of data.");
+				}
 				if (progress != null)
 					progress.progress(amount-amountUsed);
 				return;
 			}
 			out.write(buffer, 0, nb);
 			pos += nb;
-		} while (pos < size);
+		} while (pos < size || size < 0);
 		if (progress != null)
 			progress.progress(amount-amountUsed);
 	}

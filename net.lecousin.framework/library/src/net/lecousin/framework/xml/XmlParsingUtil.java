@@ -166,7 +166,7 @@ public class XmlParsingUtil {
 		public Map<String,String> attributes = new HashMap<String,String>();
 	}
 
-	/** Return <Node,InnerText,EndPos> or null if no node with given name has been found */
+	/** Return &lt;Node,InnerText,EndPos&gt; or null if no node with given name has been found */
 	public static Triple<Node,String,Integer> readNextNode(String name, String text, int pos) {
 		do {
 			int i = text.indexOf('<', pos);

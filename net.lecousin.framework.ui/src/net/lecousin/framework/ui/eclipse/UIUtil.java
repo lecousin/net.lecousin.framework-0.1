@@ -118,6 +118,10 @@ public abstract class UIUtil {
     public static void runPendingEvents(Display display) {
     	while (display.readAndDispatch()){ /* nothing to do */}
     }
+    public static void runPendingEventsIfDisplayThread(Display display) {
+    	if (display.getThread() != Thread.currentThread()) return;
+    	runPendingEvents(display);
+    }
     
 	public static void runBackgroundThread(Runnable run, Display display) {
 		Thread t = new Thread(new RunnableWithData<Pair<Runnable,Display>>(new Pair<Runnable,Display>(run,display)) {
@@ -551,5 +555,13 @@ public abstract class UIUtil {
     	}
     	gd.horizontalIndent = indent;
     	return gd;
+    }
+    
+    public static void execAsync(Control c, Runnable r) {
+    	Display d = c.getDisplay();
+    	if (d.getThread() == Thread.currentThread())
+    		r.run();
+    	else
+    		d.asyncExec(r);
     }
 }

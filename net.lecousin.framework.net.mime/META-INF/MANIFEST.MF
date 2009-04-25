@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: lecousin framework - Network - MIME
 Bundle-SymbolicName: net.lecousin.framework.net.mime
-Bundle-Version: 0.1.0
+Bundle-Version: 0.1.1
 Bundle-Activator: net.lecousin.framework.net.mime.eclipse.internal.EclipsePlugin
 Require-Bundle: org.eclipse.core.runtime,
  net.lecousin.framework

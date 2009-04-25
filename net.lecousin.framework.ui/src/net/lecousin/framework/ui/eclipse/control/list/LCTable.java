@@ -490,11 +490,11 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 	public void addRightClickListener(Listener<T> listener) { rightClick.addListener(listener); }
 
 	private List<Event<T>> addElementEvents = new LinkedList<Event<T>>();
-	private Listener<T> addElementListener = new Listener<T>() { public void fire(T element) { add(element); } };
+	private Listener<T> addElementListener = new Listener<T>() { public void fire(T element) { UIUtil.execAsync(panelRows, new RunnableWithData<T>(element) { public void run() { add(data()); }}); } };
 	private List<Event<T>> removeElementEvents = new LinkedList<Event<T>>();
-	private Listener<T> removeElementListener = new Listener<T>() { public void fire(T element) { remove(element); } };
+	private Listener<T> removeElementListener = new Listener<T>() { public void fire(T element) { UIUtil.execAsync(panelRows, new RunnableWithData<T>(element) { public void run() { remove(data()); }}); } };
 	private List<Event<T>> elementChangedEvents = new LinkedList<Event<T>>();
-	private Listener<T> elementChangedListener = new Listener<T>() { public void fire(T element) { Row i = getRow(element); if (i != null) updateRow(i, false, false); } };
+	private Listener<T> elementChangedListener = new Listener<T>() { public void fire(T element) { Row i = getRow(element); if (i != null) UIUtil.execAsync(panelRows, new RunnableWithData<Row>(i) { public void run() { updateRow(data(), false, false); }}); } };
 	private List<Event<?>> contentChangedEvents = new LinkedList<Event<?>>();
 	private Runnable contentChangedListener = new Runnable() { public void run() { refresh(true); } };
 
