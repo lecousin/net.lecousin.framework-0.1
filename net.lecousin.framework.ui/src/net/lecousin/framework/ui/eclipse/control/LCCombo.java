@@ -44,7 +44,7 @@ public class LCCombo extends Composite {
 		text = UIUtil.newText(this, "", null);
 		text.setLayoutData(UIUtil.gridDataHoriz(1, true));
 		text.addModifyListener(new TextListener());
-		Canvas canvas = new Canvas(this, SWT.NONE);
+		canvas = new Canvas(this, SWT.NONE);
 		canvas.setBackground(getBackground());
 		GridData gd = new GridData();
 		gd.widthHint = 9;
@@ -55,7 +55,7 @@ public class LCCombo extends Composite {
 		
 		ButtonStyle style = new ButtonStyle();
 		new ButtonStyleApply(canvas, style);
-		canvas.addMouseListener(new ButtonMouseListener());
+		canvas.addMouseListener(mouseListener = new ButtonMouseListener());
 		addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(DisposeEvent e) {
 				text = null;
@@ -67,9 +67,20 @@ public class LCCombo extends Composite {
 	}
 	
 	private Text text;
+	private Canvas canvas;
 	private List<Item> items = new LinkedList<Item>();
 	private Item selection = null;
 	private Event<Pair<String,Object>> selectionEvent = new Event<Pair<String,Object>>();
+	private ButtonMouseListener mouseListener;
+	private MouseListener focus = new MouseListener() {
+		public void mouseDoubleClick(MouseEvent e) {
+		}
+		public void mouseDown(MouseEvent e) {
+			mouseListener.mouseUp(e);
+		}
+		public void mouseUp(MouseEvent e) {
+		}
+	};
 	
 	private class Item {
 		Item(Image i, String t, Object d)
@@ -81,6 +92,11 @@ public class LCCombo extends Composite {
 	
 	public void setEditable(boolean value) {
 		text.setEditable(value);
+		if (value) {
+			text.removeMouseListener(focus);
+		} else {
+			text.addMouseListener(focus);
+		}
 	}
 	public void addItem(Image image, String text, Object data) {
 		items.add(new Item(image, text, data));

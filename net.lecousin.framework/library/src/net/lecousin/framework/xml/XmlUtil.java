@@ -219,6 +219,8 @@ public abstract class XmlUtil {
     			str.append('é');
     		else if (special.equalsIgnoreCase("egrave"))
     			str.append('è');
+    		else if (special.equalsIgnoreCase("ugrave"))
+    			str.append('ù');
     		else if (special.equalsIgnoreCase("ecirc"))
     			str.append('ê');
     		else if (special.equalsIgnoreCase("icirc"))

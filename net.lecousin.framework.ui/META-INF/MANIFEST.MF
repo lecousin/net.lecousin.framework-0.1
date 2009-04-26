@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: lecousin framework - UI
 Bundle-SymbolicName: net.lecousin.framework.ui
-Bundle-Version: 0.2.1
+Bundle-Version: 0.3.0
 Bundle-Activator: net.lecousin.framework.ui.eclipse.internal.EclipsePlugin
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,

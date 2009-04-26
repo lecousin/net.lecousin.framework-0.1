@@ -10,6 +10,7 @@ import net.lecousin.framework.ui.eclipse.UIUtil;
 import net.lecousin.framework.ui.eclipse.control.ControlProvider;
 import net.lecousin.framework.ui.eclipse.control.Radio;
 import net.lecousin.framework.ui.eclipse.control.UIControlUtil;
+import net.lecousin.framework.ui.eclipse.control.buttonbar.OkButtonsPanel;
 import net.lecousin.framework.ui.eclipse.control.buttonbar.OkCancelButtonsPanel;
 import net.lecousin.framework.ui.eclipse.control.error.ErrorContainerControl;
 import net.lecousin.framework.ui.eclipse.control.text.lcml.LCMLText;
@@ -81,6 +82,9 @@ public class QuestionDlg extends MyDialog {
 	private Label buttonsSeparator;
 	private Composite buttonsPanel;
 	private String selectedAnswer = null;
+	private boolean cancellable = true;
+	
+	public void setCancellable(boolean value) { cancellable = value; }
 	
 	@Override
 	protected Composite createControl(Composite container) {
@@ -242,18 +246,28 @@ public class QuestionDlg extends MyDialog {
 			}
 		});
 		UIUtil.gridLayout(buttonsPanel, 1);
-		OkCancelButtonsPanel buttons = new OkCancelButtonsPanel(buttonsPanel, false) {
-			@Override
-			protected boolean handleOk() {
-				return ok();
-			}
-			@Override
-			protected boolean handleCancel() {
-				cancel();
-				return true;
-			}
-		};
-		buttons.centerAndFillInGrid();
+		if (cancellable) {
+			OkCancelButtonsPanel buttons = new OkCancelButtonsPanel(buttonsPanel, false) {
+				@Override
+				protected boolean handleOk() {
+					return ok();
+				}
+				@Override
+				protected boolean handleCancel() {
+					cancel();
+					return true;
+				}
+			};
+			buttons.centerAndFillInGrid();
+		} else {
+			OkButtonsPanel buttons = new OkButtonsPanel(buttonsPanel, false) {
+				@Override
+				protected boolean handleOk() {
+					return ok();
+				}
+			};
+			buttons.centerAndFillInGrid();
+		}
 //		GridData gd = new GridData();
 //		gd.horizontalAlignment = SWT.RIGHT;
 //		buttons.setLayoutData(gd);

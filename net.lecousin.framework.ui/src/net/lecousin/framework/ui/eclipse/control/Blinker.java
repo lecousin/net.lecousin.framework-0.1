@@ -97,7 +97,7 @@ public class Blinker {
 						continue;
 					}
 					b.state = Blink.State.TO_BLINK;
-					b.start = time - (time-b.start-b.pattern[b.patternPos*4+0]);
+					b.start = time;// - (time-b.start-b.pattern[b.patternPos*4+0]);
 					doColor(b.c, b.recurseToChildren, b.noBlinkColor, b.blinkColor, b.start, time, b.pattern[b.patternPos*4+1]);
 					n = BLINK_TIMER;
 					if (nextTime == 0 || nextTime > n) nextTime = n;
@@ -109,7 +109,7 @@ public class Blinker {
 						if (nextTime == 0 || nextTime > n) nextTime = n;
 					} else {
 						b.state = Blink.State.BLINK;
-						b.start = time - (time - b.start - b.pattern[b.patternPos*4+1]);
+						b.start = time;// - (time - b.start - b.pattern[b.patternPos*4+1]);
 						doColor(b.c, b.recurseToChildren, b.blinkColor);
 						n = b.start + b.pattern[b.patternPos*4+2];
 						if (nextTime == 0 || nextTime > n) nextTime = n;
@@ -122,7 +122,7 @@ public class Blinker {
 						continue;
 					}
 					b.state = Blink.State.TO_NO_BLINK;
-					b.start = time - (time-b.start-b.pattern[b.patternPos*4+2]);
+					b.start = time;// - (time-b.start-b.pattern[b.patternPos*4+2]);
 					doColor(b.c, b.recurseToChildren, b.blinkColor, b.noBlinkColor, b.start, time, b.pattern[b.patternPos*4+3]);
 					n = BLINK_TIMER;
 					if (nextTime == 0 || nextTime > n) nextTime = n;
@@ -134,7 +134,7 @@ public class Blinker {
 						doColor(b.c, b.recurseToChildren, b.blinkColor, b.noBlinkColor, b.start, time, b.pattern[b.patternPos*4+3]);
 					} else {
 						b.state = Blink.State.NO_BLINK;
-						b.start = time - (time - b.start - b.pattern[b.patternPos*4+3]);
+						b.start = time;// - (time - b.start - b.pattern[b.patternPos*4+3]);
 						b.patternPos++;
 						if (b.patternPos*4 >= b.pattern.length)
 							b.patternPos = 0;

@@ -366,6 +366,14 @@ public abstract class UIUtil {
 	    	}, new Pair<T,Event.Listener<Pair<Boolean,T>>>(data, clickListener));
     	return newButton(parent, text, SWT.CHECK, null, null);
     }
+    public static <T> Button newCheck(Composite parent, Image icon, String text, Event.Listener<Pair<Boolean,T>> clickListener, T data) {
+    	if (icon == null) return newCheck(parent, text, clickListener, data);
+    	Composite panel = newGridComposite(parent, 0, 0, 3);
+    	Button button = newCheck(panel, "", clickListener, data);
+    	newImage(panel, icon);
+    	newLabel(panel, text);
+    	return button;
+    }
     
     public static <T> Radio newRadio(Composite parent, String[] options, Event.Listener<Pair<String,T>> listener, T data) {
     	Radio radio = new Radio(parent, false);
