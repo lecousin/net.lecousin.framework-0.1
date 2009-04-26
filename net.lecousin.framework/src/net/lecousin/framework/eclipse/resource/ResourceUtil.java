@@ -40,4 +40,10 @@ public class ResourceUtil {
 			createFolderAndParents((IFolder)parent);
 		folder.create(true, true, null);
 	}
+	public static void createNecessaryParentFolders(IFile file) throws CoreException {
+		IContainer parent = file.getParent();
+		if (parent == null) return;
+		if (!(parent instanceof IFolder)) return;
+		createFolderAndParents((IFolder)parent);
+	}
 }

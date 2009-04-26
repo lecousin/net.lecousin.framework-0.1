@@ -13,7 +13,7 @@ public class TextContent extends MimeContent {
 	public TextContent(Transfer transfer, MimeHeader header, WorkProgress progress, int amount) throws IOException {
 		MyByteArrayOutputStream out = new MyByteArrayOutputStream();
 		transfer.read(out, progress, amount);
-		text = new String(out.getBuffer(), 0, out.getBufferSize());
+		text = new String(out.getBuffer(), 0, out.getBufferSize(), header.getCharSet());
 	}
 	
 	private String text;
