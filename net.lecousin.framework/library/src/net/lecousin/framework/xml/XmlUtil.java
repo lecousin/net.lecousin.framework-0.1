@@ -196,10 +196,16 @@ public abstract class XmlUtil {
     		String special = value.substring(j+1, k);
     		if (special.length() == 0) { if (Log.warning(XmlUtil.class)) Log.warning(XmlUtil.class, "invalid XML string: &; is illegal");continue; }
     		if (special.charAt(0) == '#') {
+    			special = special.substring(1);
+    			int radix = 10;
+    			if (special.startsWith("x")) {
+    				special = special.substring(1);
+    				radix=16;
+    			}
     			int ascii;
-    			try { ascii = Integer.parseInt(special.substring(1)); }
+    			try { ascii = Integer.parseInt(special, radix); }
     			catch (NumberFormatException e) {
-    				if (Log.warning(XmlUtil.class)) Log.warning(XmlUtil.class, "invalid XML string: between &# and the closing ; it must be a valid number, '" + special.substring(1) + "' has been found");
+    				if (Log.warning(XmlUtil.class)) Log.warning(XmlUtil.class, "invalid XML string: between &# and the closing ; it must be a valid number, '" + special + "' has been found");
     				continue; 
     			}
     			str.append((char)ascii);

@@ -39,7 +39,7 @@ public class HttpClient {
 		out.write(reqStr.getBytes());
 		if (progress != null)
 			progress.progress(stepSend);
-		HttpResponse resp = new HttpResponse(in, progress, stepReceive, !followRedirect);
+		HttpResponse resp = new HttpResponse(req, in, progress, stepReceive, !followRedirect);
 		in.close();
 		out.close();
 		socket.close();

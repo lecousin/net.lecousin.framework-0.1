@@ -11,7 +11,8 @@ import net.lecousin.framework.progress.WorkProgress;
 
 public class HttpResponse {
 
-	public HttpResponse(InputStream in, WorkProgress progress, int amount, boolean progressIfNotOK) throws IOException {
+	public HttpResponse(HttpRequest request, InputStream in, WorkProgress progress, int amount, boolean progressIfNotOK) throws IOException {
+		this.request = request;
 		if (progress != null)
 			progress.setSubDescription(Local.Waiting_response+"...");
 		String statusLine = IOUtil.readPart(in, "\r\n");
@@ -41,11 +42,13 @@ public class HttpResponse {
 		mime = new Mime(in, progress, amount);
 	}
 	
+	private HttpRequest request;
 	private String protocol = "";
 	private int statusCode = -1;
 	private String statusDescription = "";
 	private Mime mime;
 	
+	public HttpRequest getRequest() { return request; }
 	public int getStatusCode() { return statusCode; }
 	public String getStatusDescription() { return statusDescription; }
 	public Mime getContent() { return mime; } 

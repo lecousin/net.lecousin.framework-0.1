@@ -22,6 +22,7 @@ public abstract class Transfer {
 	public abstract void read(OutputStream out, WorkProgress progress, int amount) throws IOException;
 	
 	protected void read(long size, OutputStream out, WorkProgress progress, int amount) throws IOException {
+		if (size == 0) { if (progress != null) progress.progress(amount); return; }
 		int bufSize = size <= 0 || size > 65536 ? 65536 : (int)size;
 		byte[] buffer = new byte[bufSize];
 		long pos = 0;

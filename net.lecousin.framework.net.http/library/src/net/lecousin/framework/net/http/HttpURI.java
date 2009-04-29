@@ -148,7 +148,7 @@ public class HttpURI {
 			s.append(':').append(Integer.toString(port));
 		if (protocol != null && protocol.equals("file"))
 			s.append(':');
-		s.append('/');
+		//s.append('/');
 		s.append(getPathWithQuery());
 		if (fragment != null)
 			s.append('#').append(fragment);
