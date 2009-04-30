@@ -1,5 +1,6 @@
 package net.lecousin.framework.xml;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -37,6 +38,11 @@ public abstract class XmlUtil {
 	    Document doc = docBuilder.parse(stream);
 	    if (doc == null) return null;
 	    return doc.getDocumentElement();
+	}
+	
+	public static Element parse(String xml)
+	throws ParserConfigurationException, SAXException, IOException {
+		return loadFile(new ByteArrayInputStream(xml.getBytes()));
 	}
 	  
 	public static Node get_child(Node parent, String child_name) {

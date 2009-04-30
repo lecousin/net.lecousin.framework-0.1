@@ -7,6 +7,7 @@ import net.lecousin.framework.io.IOUtil;
 import net.lecousin.framework.log.Log;
 import net.lecousin.framework.net.http.Local;
 import net.lecousin.framework.net.mime.Mime;
+import net.lecousin.framework.net.mime.content.MimeContent;
 import net.lecousin.framework.progress.WorkProgress;
 
 public class HttpResponse {
@@ -53,4 +54,11 @@ public class HttpResponse {
 	public String getStatusDescription() { return statusDescription; }
 	public Mime getContent() { return mime; } 
 	
+	/** Utility method that provides content as a string or null if not possible */
+	public String getContentAsString() throws IOException {
+		if (mime == null) return null;
+		MimeContent content = mime.getContent();
+		if (content == null) return null;
+		return content.getAsString();
+	}
 }
