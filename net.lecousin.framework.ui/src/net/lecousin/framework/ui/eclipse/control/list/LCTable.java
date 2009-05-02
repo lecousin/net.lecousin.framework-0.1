@@ -244,6 +244,12 @@ public class LCTable<T> implements LCViewer<T,Composite> {
 		public ColumnProvider<T>[] getColumns();
 		public TableConfig getConfig();
 	}
+	public static abstract class LCTableProvider_List<T> implements LCTableProvider<T> {
+		public LCTableProvider_List(List<T> data) {
+			this.list = data;
+		}
+		protected List<T> list;
+	}
 	public static abstract class LCTableProvider_SingleColumnText<T> implements LCTableProvider<T> {
 		public LCTableProvider_SingleColumnText(List<T> data) {
 			this(data, "", SWT.LEFT, true);

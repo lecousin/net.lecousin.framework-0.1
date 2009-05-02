@@ -410,7 +410,10 @@ public abstract class UIUtil {
 	}
 	
 	public static Text newText(Composite parent, String text, ModifyListener listener) {
-		Text ctrl = new Text(parent, SWT.BORDER);
+		return newText(parent, text, SWT.BORDER, listener);
+	}
+	public static Text newText(Composite parent, String text, int style, ModifyListener listener) {
+		Text ctrl = new Text(parent, style);
 		ctrl.setText(text != null ? text : "");
 		if (listener != null)
 			ctrl.addModifyListener(listener);
@@ -554,6 +557,13 @@ public abstract class UIUtil {
     	FontData data = font.getFontData()[0];
     	return new Font(font.getDevice(), data.getName(), data.getHeight(), data.getStyle());
     }
+	public static Font changeFont(Font font, int incSize, boolean bold, boolean italic) {
+    	FontData data = font.getFontData()[0];
+    	int style = 0;
+    	if (bold) style |= SWT.BOLD;
+    	if (italic) style |= SWT.ITALIC;
+    	return new Font(font.getDevice(), data.getName(), data.getHeight() + incSize, style);
+	}
     
     public static GridData indentOnGrid(Control c, int indent) {
     	GridData gd = (GridData)c.getLayoutData();

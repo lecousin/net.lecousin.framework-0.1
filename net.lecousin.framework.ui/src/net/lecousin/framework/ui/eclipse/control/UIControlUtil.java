@@ -38,9 +38,9 @@ public abstract class UIControlUtil {
     	}
         Control p = ctrl.getParent();
         if (p!= null && p.getData() instanceof TopLevelResize) {
-        	resize(p);
             if (ctrl instanceof Composite)
             	((Composite)ctrl).layout(true, true);
+        	resize(p);
         } else if (p != null && !(p instanceof Shell)) autoresize(p);
         else {
             if (ctrl instanceof Composite)

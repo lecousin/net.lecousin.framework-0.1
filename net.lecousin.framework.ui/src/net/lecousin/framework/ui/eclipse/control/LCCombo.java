@@ -1,9 +1,12 @@
 package net.lecousin.framework.ui.eclipse.control;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 import net.lecousin.framework.Pair;
+import net.lecousin.framework.Triple;
 import net.lecousin.framework.event.Event;
 import net.lecousin.framework.thread.RunnableWithData;
 import net.lecousin.framework.ui.eclipse.UIUtil;
@@ -21,6 +24,8 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
@@ -33,17 +38,35 @@ public class LCCombo extends Composite {
 
 	/** image and/or text may be null */
 	public LCCombo(Composite parent, Image image) {
+		this(parent, image, SWT.BORDER, true);
+	}
+	/** image and/or text may be null */
+	public LCCombo(Composite parent, Image image, int textStyle, boolean buttonRight) {
 		super(parent, SWT.NONE);
 		setBackground(parent.getBackground());
 		GridLayout layout = UIUtil.gridLayout(this, 2, 0, 0, 1, 0);
 		if (image != null) layout.numColumns++;
 		setLayout(layout);
 		
+		if (!buttonRight)
+			createButton();
 		if (image != null)
 			UIUtil.newImage(this, image);
-		text = UIUtil.newText(this, "", null);
+		text = UIUtil.newText(this, "", textStyle, null);
 		text.setLayoutData(UIUtil.gridDataHoriz(1, true));
 		text.addModifyListener(new TextListener());
+		if (buttonRight)
+			createButton();
+		addDisposeListener(new DisposeListener() {
+			public void widgetDisposed(DisposeEvent e) {
+				text = null;
+				items.clear(); items = null;
+				selection = null;
+				selectionEvent.free(); selectionEvent = null;
+			}
+		});
+	}
+	private void createButton() {
 		canvas = new Canvas(this, SWT.NONE);
 		canvas.setBackground(getBackground());
 		GridData gd = new GridData();
@@ -56,14 +79,6 @@ public class LCCombo extends Composite {
 		ButtonStyle style = new ButtonStyle();
 		new ButtonStyleApply(canvas, style);
 		canvas.addMouseListener(mouseListener = new ButtonMouseListener());
-		addDisposeListener(new DisposeListener() {
-			public void widgetDisposed(DisposeEvent e) {
-				text = null;
-				items.clear(); items = null;
-				selection = null;
-				selectionEvent.free(); selectionEvent = null;
-			}
-		});
 	}
 	
 	private Text text;
@@ -103,6 +118,57 @@ public class LCCombo extends Composite {
 	}
 	public void clear() {
 		items.clear();
+	}
+	public List<Triple<String,Image,Object>> getItems() {
+		List<Triple<String,Image,Object>> list = new LinkedList<Triple<String,Image,Object>>();
+		for (Item i : items)
+			list.add(new Triple<String,Image,Object>(i.text, i.image, i.data));
+		return list;
+	}
+	public List<Object> getItemsData() {
+		List<Object> list = new ArrayList<Object>(items.size());
+		for (Item i : items)
+			list.add(i.data);
+		return list;
+	}
+	public boolean removeItemData(Object data) {
+		for (Iterator<Item> it = items.iterator(); it.hasNext(); ) {
+			Item i = it.next();
+			if (i.data == data) {
+				it.remove();
+				return true;
+			}
+		}
+		return false;
+	}
+	public void setItemText(Object data, String newText) {
+		for (Item i : items)
+			if (i.data == data) {
+				i.text = newText;
+				break;
+			}
+	}
+	public void setItemImage(Object data, Image newImage) {
+		for (Item i : items)
+			if (i.data == data) {
+				i.image = newImage;
+				break;
+			}
+	}
+	public void setItemTextImage(Object data, String newText, Image newImage) {
+		for (Item i : items)
+			if (i.data == data) {
+				i.text = newText;
+				i.image = newImage;
+				break;
+			}
+	}
+	
+	public void setFont(Font font) {
+		text.setFont(font);
+	}
+	public void setForeground(Color color) {
+		text.setForeground(color);
 	}
 	
 	public String getSelection() { return text.getText(); }
