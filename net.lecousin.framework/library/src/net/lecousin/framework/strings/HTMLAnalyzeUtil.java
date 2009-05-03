@@ -72,7 +72,7 @@ public class HTMLAnalyzeUtil {
 		return p != null ? p.getValue1() : null;
 	}
 	
-	/** <name,url>,endPos */
+	/** &lt;name,url&gt;,endPos */
 	public static Pair<Pair<String,String>,Integer> getInfoLinked(String page, int i) {
 		i = page.indexOf("<a", i);
 		if (i < 0) return null;
@@ -155,5 +155,49 @@ public class HTMLAnalyzeUtil {
 			tagName.equalsIgnoreCase("i");
 		
 	}
-	
+
+	/** Search all sub nodes 'nodeName', and stops when a closing nodeName is found without a previous opening one 
+	 * Returns a (list of Node(opening),InnerText ; endpos). endpos may be startPos if no closing node is found. */ 
+	public static Pair<List<Pair<Node,String>>,Integer> getAllSubNodes(String page, int startPos, String nodeName) {
+		List<Pair<Node,String>> result = new LinkedList<Pair<Node,String>>();
+		do {
+			Pair<Integer,Triple<Node,Boolean,Integer>> open = XmlParsingUtil.findNextOpeningNode(page, startPos, nodeName);
+			Pair<Integer,Pair<String,Integer>> close = XmlParsingUtil.findNextClosingNode(page, startPos, nodeName);
+
+			// if no more closing node, it is anormal and we exit
+			if (close == null)
+				return new Pair<List<Pair<Node,String>>,Integer>(result, startPos);
+			
+			// if closing node before an open one => this is the end
+			if (open == null || close.getValue1() < open.getValue1())
+				return new Pair<List<Pair<Node,String>>,Integer>(result, close.getValue2().getValue2());
+			
+			// we have an open node before a closing one
+			Node node = open.getValue2().getValue1();
+			startPos = open.getValue2().getValue3();
+
+			// looking for an inner node before the closing node
+			Pair<Integer,Triple<Node,Boolean,Integer>> open2 = XmlParsingUtil.findNextOpeningNode(page, startPos, nodeName);
+			if (open2 == null) {
+				// no more open node
+				result.add(new Pair<Node,String>(node,page.substring(startPos, close.getValue1())));
+				return new Pair<List<Pair<Node,String>>,Integer>(result, close.getValue2().getValue2());
+			}
+			if (open2.getValue1() > close.getValue1()) {
+				// next open node is after the closing one
+				result.add(new Pair<Node,String>(node,page.substring(startPos, close.getValue1())));
+				startPos = close.getValue2().getValue2();
+				continue;
+			}
+			// we have an inner open node
+			Pair<List<Pair<Node,String>>,Integer> p = getAllSubNodes(page, startPos, nodeName);
+			if (p.getValue2() == startPos) // no closing node found.. should not happen
+				return new Pair<List<Pair<Node,String>>,Integer>(result, startPos);
+			result.addAll(p.getValue1());
+			int endPos = page.lastIndexOf("</"+nodeName, p.getValue2());
+			if (endPos < 0) endPos = p.getValue2();
+			result.add(new Pair<Node,String>(node, page.substring(startPos, endPos)));
+			startPos = p.getValue2();
+		} while (true);
+	}
 }

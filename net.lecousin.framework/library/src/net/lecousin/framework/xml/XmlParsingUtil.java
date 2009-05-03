@@ -219,4 +219,20 @@ public class XmlParsingUtil {
 		} while (pos < text.length());
 		return null;
 	}
+	
+	public static Pair<Integer,Triple<Node,Boolean,Integer>> findNextOpeningNode(String text, int startPos, String nodeName) {
+		int i = text.indexOf("<"+nodeName, startPos);
+		if (i < 0) return null;
+		Triple<Node,Boolean,Integer> t = parseOpenNode(text, i);
+		if (!t.getValue1().name.equals(nodeName))
+			return findNextOpeningNode(text, t.getValue3(), nodeName);
+		return new Pair<Integer,Triple<Node,Boolean,Integer>>(i, t);
+	}
+	public static Pair<Integer,Pair<String,Integer>> findNextClosingNode(String text, int startPos, String nodeName) {
+		int i = text.indexOf("</"+nodeName, startPos);
+		if (i < 0) return null;
+		Pair<String,Integer> p = isClosingNode(text, i);
+		if (p == null) return null;
+		return new Pair<Integer,Pair<String,Integer>>(i, p);
+	}
 }

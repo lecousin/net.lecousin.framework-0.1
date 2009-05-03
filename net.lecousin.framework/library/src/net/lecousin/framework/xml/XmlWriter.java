@@ -70,6 +70,11 @@ public class XmlWriter {
         }
         if (tag.text.length() > 0) {
         	xml.append("<![CDATA[");
+        	for (int i = tag.text.length()-1; i >= 0; --i) {
+        		char c  = tag.text.charAt(i);
+        		if (c < 0x20 && c != 0x0D && c != 0x0A)
+        			tag.text.setCharAt(i, ' ');
+        	}
         	ByteBuffer buffer = Charset.forName("UTF-8").encode(tag.text.toString());
         	xml.append(new String(buffer.array(), buffer.position(), buffer.limit()));
         	xml.append("]]>");

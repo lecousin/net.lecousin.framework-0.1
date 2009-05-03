@@ -51,6 +51,8 @@ public class LCGrid extends Composite {
 	
 	private class BorderPainter implements PaintListener {
 		public void paintControl(PaintEvent e) {
+			if (layout.horizontalSpacing == 0 && layout.verticalSpacing == 0) return;
+
 			Point size = getSize();
 			Control[] children = getChildren();
 			
@@ -78,8 +80,10 @@ public class LCGrid extends Composite {
 				rowHeight[y] = h;
 			}
 			e.gc.setForeground(borderColor);
-			paintVerticalBorders(e, size, children, colWidth);
-			paintHorizontalBorders(e, size, children, nbRows, rowHeight);
+			if (layout.horizontalSpacing > 0)
+				paintVerticalBorders(e, size, children, colWidth);
+			if (layout.verticalSpacing > 0)
+				paintHorizontalBorders(e, size, children, nbRows, rowHeight);
 		}
 		private void paintVerticalBorders(PaintEvent e, Point size, Control[] children, int colWidth[]) {
 			e.gc.setLineWidth(layout.horizontalSpacing);
