@@ -84,6 +84,7 @@ public interface Images {
 				public static final String DEL = _path+"del.gif";
 				public static final String MOVE = _path+"move.gif";
 				public static final String EDIT = _path+"edit.gif";
+				public static final String EDIT2 = _path+"edit.png";
 				public static final String HELP = _path+"help.gif";
 				public static final String REFRESH = _path+"refresh.gif";
 				public static final String SEARCH = _path+"search.gif";
